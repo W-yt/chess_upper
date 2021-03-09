@@ -134,7 +134,7 @@ int main() {
         blank_board_image = Mat::zeros(board_image.size(),CV_8UC1);
         HoughLinesP(canny_image,lines,1,CV_PI/180,50,400,60);
         drawDetectLines(blank_board_image,lines,Scalar(255));
-        imshow("blank_board_image",blank_board_image);
+        //imshow("blank_board_image",blank_board_image);
 
         /* angular point detect */
         Mat harris_dstImage;
@@ -151,7 +151,7 @@ int main() {
                 }
             }
         }
-        imshow("harris showImage",harris_showImage);
+        //imshow("harris showImage",harris_showImage);
 
         cout<<"before board point num = "<<board_point.size()<<endl;
 
@@ -167,7 +167,7 @@ int main() {
             if(it1==board_point.end())
                 break;
             for(auto it2=it1+1;it2!=board_point.end();){
-                if((abs(it1->x-it2->x)+abs(it1->y-it2->y)) < 20){
+                if((abs(it1->x-it2->x)+abs(it1->y-it2->y)) < 50){
                     it2 = board_point.erase(it2);
                     //cout<<board_point.size()<<endl;
                 }
