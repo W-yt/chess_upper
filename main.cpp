@@ -27,6 +27,7 @@ int max_contour_index = 0;
 vector<Vec4i> hierarchy;
 int harris_thresh = 175;
 vector<Point> board_point;
+int chessboard_point_maxnum = 90;
 
 void drawDetectLines(Mat&,const vector<Vec4i>&,Scalar);
 void on_CornerHarris(int, void*);
@@ -35,7 +36,6 @@ void on_CornerHarris(int, void*);
 int main() {
     /* project begin flag */
     std::cout << "Chess detecting proect begin!" << std::endl;
-
 
     /* test the Opencv lib */
 //    Mat image_test;
@@ -112,73 +112,79 @@ int main() {
             board_image = src_image(board_cutoff);
             imshow("board image",board_image);
 
-            /* find the real borad and then jump out the loop */
-            if(max_contour_area>250000 and max_contour_area<330000)
-                break;
+//            /* find the real borad and then jump out the loop */
+//            if(max_contour_area>250000 and max_contour_area<330000)
+//                break;
         }
+
+        /* board image canny detect */
+        Mat canny_image;
+        cvtColor(board_image,board_image_gray,CV_BGR2GRAY);
+//      imshow("board_image_gray",board_image_gray);
+        Canny(board_image_gray,canny_image,100,350);
+        threshold(canny_image,canny_image,128,255,THRESH_BINARY);
+
+        /* morphlogy tranform */
+        Mat element2 = getStructuringElement(MORPH_RECT,Size(5,5));
+        morphologyEx(canny_image,canny_image,MORPH_CLOSE,element);
+//        imshow("canny_image",canny_image);
+
+        /* hough detect the lines */
+        vector<Vec4i> lines;
+        blank_board_image = Mat::zeros(board_image.size(),CV_8UC1);
+        HoughLinesP(canny_image,lines,1,CV_PI/180,50,400,60);
+        drawDetectLines(blank_board_image,lines,Scalar(255));
+        imshow("blank_board_image",blank_board_image);
+
+        /* angular point detect */
+        Mat harris_dstImage;
+        cornerHarris(blank_board_image,harris_dstImage,2,3, 0.04);
+        Mat harris_showImage;
+        board_image.copyTo(harris_showImage);
+        Mat harris_normalImage;
+        normalize(harris_dstImage, harris_normalImage, 0, 255, NORM_MINMAX);
+        for (int i = 0; i < harris_showImage.rows; i++){
+            for (int j = 0; j < harris_showImage.cols; j++){
+                if (harris_normalImage.at<float>(i, j) > harris_thresh){
+                    circle(harris_showImage,Point(j, i),5,Scalar(255,255,0),1,8);
+                    board_point.push_back(Point(j,i));
+                }
+            }
+        }
+        imshow("harris showImage",harris_showImage);
+
+        cout<<"before board point num = "<<board_point.size()<<endl;
+
+        /* delete the edge point */
+        for(auto it = board_point.begin();it!=board_point.end();){
+            if(it->x < 10 or it->x > board_image.cols-10 or it->y < 40 or it->y > board_image.rows-40)
+                it = board_point.erase(it);
+            else
+                it++;
+        }
+        /* delete the coincide point */
+        for(auto it1=board_point.begin();it1!=(board_point.end());++it1){
+            if(it1==board_point.end())
+                break;
+            for(auto it2=it1+1;it2!=board_point.end();){
+                if((abs(it1->x-it2->x)+abs(it1->y-it2->y)) < 20){
+                    it2 = board_point.erase(it2);
+                    //cout<<board_point.size()<<endl;
+                }
+                else{
+                    it2++;
+                }
+            }
+        }
+
+        cout <<"after board point num = "<<board_point.size()<<endl;
+
+        if(board_point.size() == chessboard_point_maxnum){
+            break;
+        }
+
         waitKey(50);
     }
-
-    /* board image canny detect */
-    Mat canny_image;
-    cvtColor(board_image,board_image_gray,CV_BGR2GRAY);
-//    imshow("board_image_gray",board_image_gray);
-    Canny(board_image_gray,canny_image,100,350);
-    threshold(canny_image,canny_image,128,255,THRESH_BINARY);
-
-    /* morphlogy tranform */
-    Mat element = getStructuringElement(MORPH_RECT,Size(5,5));
-    morphologyEx(canny_image,canny_image,MORPH_CLOSE,element);
-    imshow("canny_image",canny_image);
-
-    /* hough detect the lines */
-    vector<Vec4i> lines;
-    blank_board_image = Mat::zeros(board_image.size(),CV_8UC1);
-    HoughLinesP(canny_image,lines,1,CV_PI/180,50,400,60);
-    drawDetectLines(blank_board_image,lines,Scalar(255));
-    //imshow("blank_board_image",blank_board_image);
-
-    /* angular point detect */
-    Mat harris_dstImage;
-    cornerHarris(blank_board_image,harris_dstImage,2,3, 0.04);
-    Mat harris_showImage;
-    board_image.copyTo(harris_showImage);
-    Mat harris_normalImage;
-    normalize(harris_dstImage, harris_normalImage, 0, 255, NORM_MINMAX);
-    for (int i = 0; i < harris_showImage.rows; i++){
-        for (int j = 0; j < harris_showImage.cols; j++){
-            if (harris_normalImage.at<float>(i, j) > harris_thresh){
-                circle(harris_showImage,Point(j, i),5,Scalar(255,255,0),1,8);
-                board_point.push_back(Point(j,i));
-            }
-        }
-    }
-    imshow("harris showImage",harris_showImage);
-
-    cout<<"before board point num = "<<board_point.size()<<endl;
-
-    /* delete the edge point */
-    for(auto it = board_point.begin();it!=board_point.end();){
-        if(it->x < 10 or it->x > board_image.cols-10 or it->y < 40 or it->y > board_image.rows-40)
-            it = board_point.erase(it);
-        else
-            it++;
-    }
-    /* delete the coincide point */
-    for(auto it1=board_point.begin();it1!=(board_point.end());++it1){
-        if(it1==board_point.end())
-            break;
-        for(auto it2=it1+1;it2!=board_point.end();){
-            if((abs(it1->x-it2->x)+abs(it1->y-it2->y)) < 20){
-                it2 = board_point.erase(it2);
-                cout<<board_point.size()<<endl;
-            }
-            else{
-                it2++;
-            }
-        }
-    }
-
 
     /* draw the point after delete */
     for(vector<Point>::iterator it = board_point.begin();it != board_point.end();++it){
