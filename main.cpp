@@ -52,7 +52,7 @@ int main() {
         Mat binary_image;
         int binary_edge = 90;
         threshold(yellow_image,binary_image,binary_edge,255,THRESH_BINARY);
-        imshow("[Binary image]",binary_image);
+        //imshow("[Binary image]",binary_image);
 
         /* picture binarization(THRESH_OTSH大津法) */
 //        Mat gray_image,binary_image;
@@ -66,7 +66,7 @@ int main() {
         int element_size = 11;
         Mat element = getStructuringElement(MORPH_RECT,Size(element_size,element_size));
         morphologyEx(binary_image,morph_image,MORPH_CLOSE,element);
-        imshow("[Morph image]",morph_image);
+        //imshow("[Morph image]",morph_image);
 
 //        /* find the board keypoint using fast-detect */
 ////        vector<KeyPoint> board_keypoints;
@@ -108,8 +108,13 @@ int main() {
         board_rect.points(board_point);
         for(int j=0;j<=3;j++)
             line(drawing_image,board_point[j],board_point[(j+1)%4],green_color,2);
-        imshow("[drawing image]",drawing_image);
+        //imshow("[drawing image]",drawing_image);
 
+        /* cot off the chess borad */
+        Mat board_image;
+        Rect board_cutoff(board_point[0],board_point[2]);
+        board_image = src_image(board_cutoff);
+        imshow("board image",board_image);
 
         //        vector<vector<Point>> hull(contours.size());
 //        vector<vector<Point>> real_hull;
