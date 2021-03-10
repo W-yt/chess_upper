@@ -10,7 +10,7 @@ using namespace std;
 
 /* some project config flag */
 #define CAMERA_ADJUST               0
-#define CHESS_BOARD_RECOGNIZE_ON    0
+#define CHESS_BOARD_RECOGNIZE_ON    1
 #define CHESS_PIECE_DETECT_ON       1
 
 /* variate definition */
@@ -34,10 +34,13 @@ vector<Vec4i> hierarchy;
 int harris_thresh = 175;
 vector<Point> board_point;
 int chessboard_point_maxnum = 90;
+vector<vector<Point>> chessboard_point_sorted;
 
 /* founctions declare */
 void drawDetectLines(Mat&,const vector<Vec4i>&,Scalar);
 void on_CornerHarris(int, void*);
+bool point_x_sort(const Point& a, const Point& b);
+bool point_y_sort(const Point& a, const Point& b);
 
 int main() {
     /* project begin flag */
@@ -208,10 +211,35 @@ int main() {
 
         /* draw the point after delete */
         for(vector<Point>::iterator it = board_point.begin();it != board_point.end();++it){
-            circle(board_image,Point(it->x, it->y),5,Scalar(255,255,0),2,8);
+            circle(board_image,Point(it->x, it->y),4,Scalar(255,255,255),2,8);
         }
+
+        /* add tag for each chess board point */
+        sort(board_point.begin(),board_point.end(),point_x_sort);
+        vector<Point> temp_point_group(9);
+        for(int j = 0; j != 10 ; ++j)
+        {
+            for(int i = 0; i != 9; ++i)
+                temp_point_group.at(i) = board_point.at(9*j+i);
+            sort(temp_point_group.begin(),temp_point_group.end(),point_y_sort);
+            chessboard_point_sorted.push_back(temp_point_group);
+        }
+
+        for(int j = 0; j != 10; ++j)
+        {
+            for(int i = 0; i != 9; ++i)
+            {
+                string num1 = to_string(j+1);
+                string num2 = to_string(i+1);
+                string point_tag = "("+num1+","+num2+")";
+                Point tag_place = Point(chessboard_point_sorted.at(j).at(i).x-24,chessboard_point_sorted.at(j).at(i).y-10);
+                putText(board_image,point_tag,tag_place,CV_FONT_HERSHEY_TRIPLEX,0.5,Scalar(255,255,255));
+            }
+        }
+
+
         imshow("board image",board_image);
-        cout<<"finial board point num = "<<board_point.size()<<endl;
+        //cout<<"finial board point num = "<<board_point.size()<<endl;
     }
 
     waitKey(0);
@@ -231,4 +259,18 @@ void drawDetectLines(Mat& image,const vector<Vec4i>& lines,Scalar color)
     }
 }
 
+bool point_x_sort(const Point& a, const Point& b)
+{
+    if(a.x<=b.x)
+        return true;
+    else
+        return false;
+}
 
+bool point_y_sort(const Point& a, const Point& b)
+{
+    if(a.y<=b.y)
+        return true;
+    else
+        return false;
+}
