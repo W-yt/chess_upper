@@ -10,7 +10,7 @@ using namespace std;
 
 /* some project config flag */
 #define CAMERA_ADJUST               0
-#define CHESS_BOARD_RECOGNIZE_ON    1
+#define CHESS_BOARD_RECOGNIZE_ON    0
 #define CHESS_PIECE_DETECT_ON       1
 
 /* variate definition */
@@ -19,7 +19,6 @@ Mat gray_image;
 Mat yellow_image;
 Mat binary_image;
 Mat morph_image;
-Mat threshold_image;
 Mat board_image;
 Mat board_image_gray;
 Mat blank_board_image;
@@ -35,6 +34,14 @@ int harris_thresh = 175;
 vector<Point> board_point;
 int chessboard_point_maxnum = 90;
 vector<vector<Point>> chessboard_point_sorted;
+Point2f boardedge_point[4];
+
+Mat piece_image;
+Mat piece_image_gray;
+Mat piece_image_thre;
+Mat piece_image_blur;
+vector<Vec3f> circles_hough;
+vector<Mat> piece_image_channels;
 
 /* founctions declare */
 void drawDetectLines(Mat&,const vector<Vec4i>&,Scalar);
@@ -45,12 +52,6 @@ bool point_y_sort(const Point& a, const Point& b);
 int main() {
     /* project begin flag */
     std::cout << "Chess detecting proect begin!" << std::endl;
-
-    /* test the Opencv lib */
-//    Mat image_test;
-//    //now dir is build dir, so we need ../ to father dir
-//    image_test = imread("../test.jpg");
-//    imshow("picture show",image_test);
 
     /* open the camera (this camera need calibration)*/
     VideoCapture capture(2);
@@ -128,14 +129,14 @@ int main() {
                 /* find and draw the board rect */
                 static RotatedRect board_rect;
                 board_rect = minAreaRect(max_contour);
-                Point2f board_point[4];
-                board_rect.points(board_point);
+//                Point2f boardedge_point[4];
+                board_rect.points(boardedge_point);
                 for(int j=0;j<=3;j++)
-                    line(drawing_image,board_point[j],board_point[(j+1)%4],green_color,2);
+                    line(drawing_image,boardedge_point[j],boardedge_point[(j+1)%4],green_color,2);
                 //imshow("[drawing image]",drawing_image);
 
                 /* cot off the chess borad */
-                Rect board_cutoff(board_point[0],board_point[2]);
+                Rect board_cutoff(boardedge_point[0],boardedge_point[2]);
                 board_image = src_image(board_cutoff);
                 imshow("board image",board_image);
 
@@ -206,7 +207,7 @@ int main() {
             cout <<"after board point num = "<<board_point.size()<<endl;
             if(board_point.size() == chessboard_point_maxnum)
                 break;
-            waitKey(50);
+            waitKey(20);
         }
 
         /* draw the point after delete */
@@ -240,6 +241,65 @@ int main() {
 
         imshow("board image",board_image);
         //cout<<"finial board point num = "<<board_point.size()<<endl;
+    }
+
+    /* then detect the chess pieces's place */
+    if(CHESS_PIECE_DETECT_ON)
+    {
+        /* avoid extra cutoff, step only for debug(this need adjust when you move the camera or chess) */
+        if(CHESS_BOARD_RECOGNIZE_ON == 0)
+        {
+            boardedge_point[0] = Point(67.8,646.0);
+            boardedge_point[1] = Point(65.4,85.1);
+            boardedge_point[2] = Point(635.5,82.6);
+            boardedge_point[3] = Point(637.9,643.6);
+        }
+
+        while (1)
+        {
+            capture>>src_image;
+            /* teak the mid square picture */
+            Rect src_rect(280,0,720,720);
+            src_image = src_image(src_rect);
+            //imshow("[Src image]",src_image);
+
+            /* cut off the mid image */
+            Rect board_cutoff(boardedge_point[0],boardedge_point[2]);
+            board_image = src_image(board_cutoff);
+            piece_image = board_image.clone();
+            //imshow("piece image",piece_image);
+
+            /* image enhancement */
+            cvtColor(piece_image,piece_image_gray,CV_BGR2GRAY);
+            split(piece_image,piece_image_channels);
+            //imshow("green channel image",piece_image_channels.at(1));
+            threshold(piece_image_channels.at(1),piece_image_thre,128,255,CV_THRESH_BINARY|CV_THRESH_OTSU);
+            blur(piece_image_thre,piece_image_blur,Size(3,3));
+
+            /* HoughCilcles函数参数说明：
+             * param1:此参数是对应Canny边缘检测的最大阈值，最小阈值是此参数的一半 也就是说像素的值大于param1是会检测为边缘
+             * param2:它表示在检测阶段圆心的累加器阈值。它越小的话，就可以检测到更多根本不存在的圆，而它越大的话，能通过检测的圆就更加接近完美的圆形了
+             */
+            HoughCircles(piece_image_blur,circles_hough,CV_HOUGH_GRADIENT,1,40,100,20,18,21);
+
+            for (std::size_t i = 0; i < circles_hough.size(); i++)
+            {
+                /* cvRound返回和参数最接近的整数值 */
+                Point center(cvRound(circles_hough[i][0]), cvRound(circles_hough[i][1]));
+                int radius = cvRound(circles_hough[i][2]);
+//                cout << i << "\t" << " center " << "= " << center << ";\n" << endl;
+//                cout << i << "\t" << " radius " << "= " << radius << ";\n" << endl;
+//                circle(piece_image_blur,center,3,Scalar(0, 255, 0),-1,8,0);
+//                circle(piece_image_blur,center,radius,Scalar(155, 50, 255),2,8,0);
+                circle(piece_image,center,3,Scalar(0, 255, 0),-1,8,0);
+                circle(piece_image,center,radius,Scalar(155, 50, 255),2,8,0);
+            }
+            cout << "find " << circles_hough.size() << " circles" << ";\n" << endl;
+            //imshow("piece image blur", piece_image_blur);
+            imshow("piece image", piece_image);
+
+            waitKey(20);
+        }
     }
 
     waitKey(0);
