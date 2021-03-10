@@ -214,7 +214,7 @@ int main() {
             circle(board_image,Point(it->x, it->y),4,Scalar(255,255,255),2,8);
         }
 
-        /* add tag for each chess board point */
+        /* sort the 90 chess board points */
         sort(board_point.begin(),board_point.end(),point_x_sort);
         vector<Point> temp_point_group(9);
         for(int j = 0; j != 10 ; ++j)
@@ -225,6 +225,7 @@ int main() {
             chessboard_point_sorted.push_back(temp_point_group);
         }
 
+        /* display the chess board point tag */
         for(int j = 0; j != 10; ++j)
         {
             for(int i = 0; i != 9; ++i)
@@ -236,7 +237,6 @@ int main() {
                 putText(board_image,point_tag,tag_place,CV_FONT_HERSHEY_TRIPLEX,0.5,Scalar(255,255,255));
             }
         }
-
 
         imshow("board image",board_image);
         //cout<<"finial board point num = "<<board_point.size()<<endl;
