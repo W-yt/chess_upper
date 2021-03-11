@@ -9,7 +9,7 @@ using namespace std;
 
 /* some project config flag */
 #define CAMERA_ADJUST               0
-#define CHESS_BOARD_RECOGNIZE_ON    0
+#define CHESS_BOARD_RECOGNIZE_ON    1
 #define CHESS_PIECE_DETECT_ON       1
 
 /* variate definition */
@@ -53,7 +53,7 @@ int main() {
     std::cout << "Chess detecting proect begin!" << std::endl;
 
     /* open the camera (this camera need calibration)*/
-    VideoCapture capture(2);
+    VideoCapture capture(0);
     capture.set(CV_CAP_PROP_FRAME_WIDTH,1280);
     capture.set(CV_CAP_PROP_FRAME_HEIGHT,720);
 
@@ -137,7 +137,7 @@ int main() {
                 /* cot off the chess borad */
                 Rect board_cutoff(boardedge_point[0],boardedge_point[2]);
                 board_image = src_image(board_cutoff);
-                imshow("board image",board_image);
+                //imshow("board image",board_image);
 
 //            /* find the real borad and then jump out the loop */
 //            if(max_contour_area>250000 and max_contour_area<330000)
@@ -154,7 +154,7 @@ int main() {
             /* morphlogy tranform */
             Mat element2 = getStructuringElement(MORPH_RECT,Size(5,5));
             morphologyEx(canny_image,canny_image,MORPH_CLOSE,element);
-//          imshow("canny_image",canny_image);
+            //imshow("canny_image",canny_image);
 
             /* hough detect the lines */
             vector<Vec4i> lines;
