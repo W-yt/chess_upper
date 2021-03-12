@@ -9,8 +9,9 @@ using namespace std;
 
 /* some project config flag */
 #define CAMERA_ADJUST               0
-#define CHESS_BOARD_RECOGNIZE_ON    1
+#define CHESS_BOARD_RECOGNIZE_ON    0
 #define CHESS_PIECE_DETECT_ON       1
+#define CHESS_PIECE_SAVE            1
 
 /* variate definition */
 Mat src_image;
@@ -41,6 +42,8 @@ Mat piece_image_thre;
 Mat piece_image_blur;
 vector<Vec3f> circles_hough;
 vector<Mat> piece_image_channels;
+
+int piece_roi_size = 50;
 
 /* founctions declare */
 void drawDetectLines(Mat&,const vector<Vec4i>&,Scalar);
@@ -286,12 +289,38 @@ int main() {
                 /* cvRound返回和参数最接近的整数值 */
                 Point center(cvRound(circles_hough[i][0]), cvRound(circles_hough[i][1]));
                 int radius = cvRound(circles_hough[i][2]);
+
 //                cout << i << "\t" << " center " << "= " << center << ";\n" << endl;
 //                cout << i << "\t" << " radius " << "= " << radius << ";\n" << endl;
 //                circle(piece_image_blur,center,3,Scalar(0, 255, 0),-1,8,0);
 //                circle(piece_image_blur,center,radius,Scalar(155, 50, 255),2,8,0);
-                circle(piece_image,center,3,Scalar(0, 255, 0),-1,8,0);
-                circle(piece_image,center,radius,Scalar(155, 50, 255),2,8,0);
+
+                if(CHESS_PIECE_SAVE == 0)
+                {
+                    circle(piece_image,center,3,Scalar(0, 255, 0),-1,8,0);
+                    circle(piece_image,center,radius+3,Scalar(155, 50, 255),2,8,0);
+                }
+
+                /* save the piece image roi */
+                if(CHESS_PIECE_SAVE == 1)
+                {
+                    /* cut off each piece */
+                    Rect piece_ROI(Point(center.x-piece_roi_size/2,center.y-piece_roi_size/2),Point(center.x+piece_roi_size/2,center.y+piece_roi_size/2));
+                    Mat piece_cutoff = piece_image(piece_ROI);
+                    Mat piece_save = Mat::zeros(Size(piece_roi_size,piece_roi_size),CV_8UC3);
+                    Mat piece_mask = Mat::zeros(Size(piece_roi_size,piece_roi_size),CV_8UC1);
+
+                    for (std::size_t i = 0; i < circles_hough.size(); i++)
+                    {
+                        circle(piece_mask,Point(piece_roi_size/2,piece_roi_size/2),radius-2,Scalar(255),-1);
+                        piece_cutoff.copyTo(piece_save,piece_mask);
+                    }
+
+                    /* show the piece roi to save */
+                    imshow("piece cutoff",piece_cutoff);
+                    imshow("piece mask",piece_mask);
+                    imshow("piece save",piece_save);
+                }
             }
             cout << "find " << circles_hough.size() << " circles" << ";\n" << endl;
             //imshow("piece image blur", piece_image_blur);
