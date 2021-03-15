@@ -320,6 +320,22 @@ int main() {
                     imshow("piece cutoff",piece_cutoff);
                     imshow("piece mask",piece_mask);
                     imshow("piece save",piece_save);
+
+//                    /* 卒 */
+//                    static String savepath = "../zu/";
+//                    static int savenum = 1;
+//                    String savename = to_string(savenum++);
+//                    static String savetype = ".jpg";
+//                    String savefullname = savepath+savename+savetype;
+//                    imwrite(savefullname,piece_save);
+
+//                    /* 兵 */
+//                    static String savepath = "../bing/";
+//                    static int savenum = 1;
+//                    String savename = to_string(savenum++);
+//                    static String savetype = ".jpg";
+//                    String savefullname = savepath+savename+savetype;
+//                    imwrite(savefullname,piece_save);
                 }
             }
             cout << "find " << circles_hough.size() << " circles" << ";\n" << endl;
