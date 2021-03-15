@@ -11,7 +11,7 @@ using namespace std;
 #define CAMERA_ADJUST               0
 #define CHESS_BOARD_RECOGNIZE_ON    0
 #define CHESS_PIECE_DETECT_ON       1
-#define CHESS_PIECE_SAVE            1
+#define CHESS_PIECE_SAVE            0
 
 /* variate definition */
 Mat src_image;
