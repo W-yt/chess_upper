@@ -7,6 +7,7 @@
 using namespace cv;
 using namespace std;
 
+
 /* some project config flag */
 #define CAMERA_ADJUST               0
 #define CHESS_BOARD_RECOGNIZE_ON    0
