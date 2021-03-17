@@ -7,14 +7,16 @@
 using namespace cv;
 using namespace std;
 
-
 /* some project config flag */
 #define CAMERA_ADJUST               0
 #define CHESS_BOARD_RECOGNIZE_ON    0
 #define CHESS_PIECE_DETECT_ON       1
-#define CHESS_PIECE_SAVE            0
+#define CHESS_PIECE_SAVE            1
 
 /* variate definition */
+#define THRESHOD_EDGE   110
+#define DST_SIZE        200
+#define DISTANCE_EDGE   3600
 Mat src_image;
 Mat gray_image;
 Mat yellow_image;
@@ -320,6 +322,13 @@ int main() {
                     /* show the piece roi to save */
                     imshow("piece cutoff",piece_cutoff);
                     imshow("piece mask",piece_mask);
+
+                    /* threshold the save image */
+                    threshold(piece_save,piece_save,THRESHOD_EDGE,255,THRESH_BINARY);
+                    for(int src_rows = 0; src_rows < DST_SIZE; ++src_rows)
+                        for(int src_cols = 0; src_cols < DST_SIZE; ++src_cols)
+                            if(pow((src_rows-DST_SIZE/2),2) + pow((src_cols-DST_SIZE/2),2) >= DISTANCE_EDGE)
+                                piece_save.at<uchar>(src_rows, src_cols) = 255;
                     imshow("piece save",piece_save);
 
 //                    /* 卒 */
