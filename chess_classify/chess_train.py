@@ -147,7 +147,7 @@ def MAIN():
     # FILE.FileRemove(Output_folder = "./训练数据目录/")
 
     # Train the Network
-    Train = Training(batch_size = 64, num_batch = 3, categorizes = 4, train_folder = "./训练数据目录/")
+    Train = Training(batch_size = 64, num_batch = 3, categorizes = 4, train_folder = "训练数据目录/")
     Train.train()
 
 
