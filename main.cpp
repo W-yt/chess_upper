@@ -11,10 +11,10 @@ using namespace std;
 #define CAMERA_ADJUST               0
 #define CHESS_BOARD_RECOGNIZE_ON    0
 #define CHESS_PIECE_DETECT_ON       1
-#define CHESS_PIECE_SAVE            1
+#define CHESS_PIECE_SAVE            0
 
 /* variate definition */
-#define THRESHOD_EDGE   110
+#define THRESHOD_EDGE   120     //if white -> bigger
 #define DST_SIZE        200
 #define DISTANCE_EDGE   3600
 Mat src_image;
@@ -311,41 +311,41 @@ int main() {
                     Rect piece_ROI(Point(center.x-piece_roi_size/2,center.y-piece_roi_size/2),Point(center.x+piece_roi_size/2,center.y+piece_roi_size/2));
                     Mat piece_cutoff = piece_image(piece_ROI);
                     Mat piece_save = Mat::zeros(Size(piece_roi_size,piece_roi_size),CV_8UC3);
-                    Mat piece_mask = Mat::zeros(Size(piece_roi_size,piece_roi_size),CV_8UC1);
-
-                    for (std::size_t i = 0; i < circles_hough.size(); i++)
-                    {
-                        circle(piece_mask,Point(piece_roi_size/2,piece_roi_size/2),radius-2,Scalar(255),-1);
-                        piece_cutoff.copyTo(piece_save,piece_mask);
-                    }
+                    static Mat piece_mask = Mat::zeros(Size(piece_roi_size,piece_roi_size),CV_8UC1);
+                    circle(piece_mask,Point(piece_roi_size/2,piece_roi_size/2),radius-3,Scalar(255),-1);
+                    piece_cutoff.copyTo(piece_save,piece_mask);
 
                     /* show the piece roi to save */
-                    imshow("piece cutoff",piece_cutoff);
-                    imshow("piece mask",piece_mask);
+//                    imshow("piece cutoff",piece_cutoff);
+//                    imshow("piece mask",piece_mask);
 
                     /* threshold the save image */
-                    threshold(piece_save,piece_save,THRESHOD_EDGE,255,THRESH_BINARY);
-                    for(int src_rows = 0; src_rows < DST_SIZE; ++src_rows)
-                        for(int src_cols = 0; src_cols < DST_SIZE; ++src_cols)
-                            if(pow((src_rows-DST_SIZE/2),2) + pow((src_cols-DST_SIZE/2),2) >= DISTANCE_EDGE)
-                                piece_save.at<uchar>(src_rows, src_cols) = 255;
+//                    cvtColor(piece_save,piece_save,CV_BGR2GRAY);
+                    resize(piece_save,piece_save,Size(DST_SIZE,DST_SIZE));
+//                    threshold(piece_save,piece_save,THRESHOD_EDGE,255,THRESH_BINARY);
+//                    for(int src_rows = 0; src_rows < DST_SIZE; ++src_rows)
+//                        for(int src_cols = 0; src_cols < DST_SIZE; ++src_cols)
+//                            if(pow((src_rows-DST_SIZE/2),2) + pow((src_cols-DST_SIZE/2),2) >= DISTANCE_EDGE)
+//                                piece_save.at<uchar>(src_rows, src_cols) = 255;
                     imshow("piece save",piece_save);
 
-//                    /* 卒 */
-//                    static String savepath = "../zu/";
-//                    static int savenum = 1;
-//                    String savename = to_string(savenum++);
-//                    static String savetype = ".jpg";
-//                    String savefullname = savepath+savename+savetype;
-//                    imwrite(savefullname,piece_save);
+//                    /* 黑-卒 */
+//                    static String savepath = "../hei_zu/";
 
-//                    /* 兵 */
-//                    static String savepath = "../bing/";
-//                    static int savenum = 1;
-//                    String savename = to_string(savenum++);
-//                    static String savetype = ".jpg";
-//                    String savefullname = savepath+savename+savetype;
-//                    imwrite(savefullname,piece_save);
+//                    /* 红-兵 */
+//                    static String savepath = "../hong_bing/";
+
+//                    /* 红-帥 */
+//                    static String savepath = "../hong_shuai/";
+
+                    /* 黑-将 */
+                    static String savepath = "../hei_jiang/";
+
+                    static int savenum = 1;
+                    String savename = to_string(savenum++);
+                    static String savetype = ".jpg";
+                    String savefullname = savepath+savename+savetype;
+                    imwrite(savefullname,piece_save);
                 }
             }
             cout << "find " << circles_hough.size() << " circles" << ";\n" << endl;
