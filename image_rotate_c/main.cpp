@@ -23,8 +23,8 @@ int main()
     Mat dstimage(Size(200,200),CV_8UC3);
     Mat rotate_matrix;
 
-    string image_src_dir = project_dir + "hong_shuai/";
-    string image_dst_dir = project_dir + "train_hong_shuai/";
+    string image_src_dir = project_dir + "原始_每种5张/" + "14-红-相/";
+    string image_dst_dir = project_dir + "旋转_每种1800张/" + "14-红-相/";
     string image_name,output_name;
 
     int num = 0;
@@ -51,7 +51,7 @@ int main()
             waitKey(2);
         }
 
-        waitKey(0);
+        waitKey(100);
     }
 
     return 0;
