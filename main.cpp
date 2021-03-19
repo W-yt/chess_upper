@@ -11,7 +11,7 @@ using namespace std;
 #define CAMERA_ADJUST               0
 #define CHESS_BOARD_RECOGNIZE_ON    0
 #define CHESS_PIECE_DETECT_ON       1
-#define CHESS_PIECE_SAVE            0
+#define CHESS_PIECE_SAVE            1
 
 /* variate definition */
 #define THRESHOD_EDGE   120     //if white -> bigger
@@ -47,6 +47,7 @@ vector<Vec3f> circles_hough;
 vector<Mat> piece_image_channels;
 
 int piece_roi_size = 50;
+string temp_save_dir = "../temp_save_dir/";
 
 /* founctions declare */
 void drawDetectLines(Mat&,const vector<Vec4i>&,Scalar);
@@ -329,18 +330,8 @@ int main() {
 //                                piece_save.at<uchar>(src_rows, src_cols) = 255;
                     imshow("piece save",piece_save);
 
-//                    /* 黑-卒 */
-//                    static String savepath = "../hei_zu/";
-
-//                    /* 红-兵 */
-//                    static String savepath = "../hong_bing/";
-
-//                    /* 红-帥 */
-//                    static String savepath = "../hong_shuai/";
-
-                    /* 黑-将 */
-                    static String savepath = "../hei_jiang/";
-
+                    /* set save directory */
+                    static String savepath = temp_save_dir;
                     static int savenum = 1;
                     String savename = to_string(savenum++);
                     static String savetype = ".jpg";
