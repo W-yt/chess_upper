@@ -64,8 +64,10 @@ class Training(object):
         train_image_list = np.array(train_image_list)
         train_label_list = np.array(train_label_list)
 
-        print(train_image_list.shape)
-        print(train_label_list.shape)
+        # print(train_image_list.shape)
+        # print(train_label_list.shape)
+
+        print("model label set finish!")
 
         train_label_list = np_utils.to_categorical(train_label_list,self.categories)
         train_image_list = train_image_list.astype("float32")
@@ -101,8 +103,8 @@ class Training(object):
 
         # Fully connected Layer —— 1
         model.add(Flatten()) # 降维
-        model.add(Dense(1024))
-        model.add(Activation("relu"))
+        # model.add(Dense(1024))
+        # model.add(Activation("relu"))
         # Fully connected Layer —— 2
         model.add(Dense(512))
         model.add(Activation("relu"))
@@ -114,19 +116,21 @@ class Training(object):
         model.add(Activation("softmax"))
 
         # Define Optimizer
-        adam = Adam(lr = 0.0001)
+        adam = Adam(lr = 0.001)
 
         # Compile the model
         model.compile(optimizer = adam,
                       loss = "categorical_crossentropy",
                       metrics = ["accuracy"])
 
+        print("model compile finish!")
+
         #Fire up the network
-        model.fit(
-            x = train_image_list,
-            y = train_label_list,
-            epochs = self.number_batch,
-            batch_size = self.batch_size)
+        model.fit(x = train_image_list,
+                  y = train_label_list,
+                  epochs = self.number_batch,
+                  batch_size = self.batch_size,
+                  verbose = 1)
 
         # Save your work model
         model.save("./piecefinder.h5")
