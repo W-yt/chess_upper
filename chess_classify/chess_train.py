@@ -36,8 +36,7 @@ class PreFile(object):
             subfolder = os.listdir(self.FilePath + type)
             for subclass in subfolder:
                 img_open = Image.open(self.FilePath + type + "/" + str(subclass))
-                conv_RGB = img_open.convert("RGB") # 统一转化成RGB格式
-                conv_RGB.save(os.path.join(Output_folder, os.path.basename(subclass)))
+                img_open.save(os.path.join(Output_folder, os.path.basename(subclass)))
         print("remove finish!")
 
 
@@ -137,17 +136,20 @@ class Training(object):
 
 def MAIN():
 
-    PieceType = ["黑-卒","红-兵","黑-将","红-帥"]
+    # PieceType = ["1-黑-車","2-黑-卒","3-黑-将" ,"4-黑-马"]
+
+    PieceType = ["1-黑-車","2-黑-卒","3-黑-将" ,"4-黑-马" ,"5-黑-炮" ,"6-黑-士" ,"7-黑-象" ,
+                 "8-红-兵","9-红-車","10-红-马","11-红-炮","12-红-仕","13-红-帥","14-红-相"]
 
     # # File pre processing
-    # FILE = PreFile(FilePath = "./原始数据目录/",PieceType = PieceType)
+    # FILE = PreFile(FilePath = "原始数据目录/",PieceType = PieceType)
     #
     # # File rename and remove
     # FILE.FileReName()
-    # FILE.FileRemove(Output_folder = "./训练数据目录/")
+    # FILE.FileRemove(Output_folder = "训练数据目录/")
 
     # Train the Network
-    Train = Training(batch_size = 64, num_batch = 3, categorizes = 4, train_folder = "训练数据目录/")
+    Train = Training(batch_size = 1, num_batch = 50, categorizes = 14, train_folder = "训练数据目录/")
     Train.train()
 
 

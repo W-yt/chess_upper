@@ -23,13 +23,13 @@ int main()
     Mat dstimage(Size(200,200),CV_8UC3);
     Mat rotate_matrix;
 
-    string image_src_dir = project_dir + "原始_每种5张/" + "14-红-相/";
-    string image_dst_dir = project_dir + "旋转_每种1800张/" + "14-红-相/";
+    string image_src_dir = project_dir + "原始_每种5张/" + "1-黑-車/";
+    string image_dst_dir = project_dir + "旋转_每种720张/" + "1-黑-車/";
     string image_name,output_name;
 
     int num = 0;
 
-    for(int i = 1; i < 6; i++)
+    for(int i = 1; i < 3; i++)
     {
         image_name = image_src_dir + to_string(i) + ".jpg";
 
@@ -48,10 +48,10 @@ int main()
 
             imwrite(output_name,dstimage);
             num++;
-            waitKey(2);
+            waitKey(1);
         }
 
-        waitKey(100);
+        waitKey(10);
     }
 
     return 0;

@@ -1,8 +1,6 @@
 from keras.models import load_model
 import matplotlib.image as processimage
-import matplotlib.pyplot as plt
 import numpy as np
-from PIL import Image
 
 class Prediction(object):
     def __init__(self,ModelFile,PredictFile,PieceType):
