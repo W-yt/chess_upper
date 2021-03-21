@@ -45,6 +45,6 @@ class Prediction(object):
 PieceType = ["1-黑-車", "2-黑-卒", "3-黑-将", "4-黑-马", "5-黑-炮", "6-黑-士", "7-黑-象",
              "8-红-兵", "9-红-車", "10-红-马","11-红-炮","12-红-仕","13-红-帥","14-红-相"]
 
-Pred = Prediction(PredictFile = "测试数据目录/1-黑-車/12.jpg",ModelFile = "piecefinder.h5",PieceType = PieceType)
+Pred = Prediction(PredictFile = "测试数据目录/3-黑-将/122.jpg",ModelFile = "piecefinder.h5",PieceType = PieceType)
 Pred.Predict()
 

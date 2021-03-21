@@ -143,16 +143,16 @@ def MAIN():
     PieceType = ["1-黑-車","2-黑-卒","3-黑-将" ,"4-黑-马" ,"5-黑-炮" ,"6-黑-士" ,"7-黑-象" ,
                  "8-红-兵","9-红-車","10-红-马","11-红-炮","12-红-仕","13-红-帥","14-红-相"]
 
-    # File pre processing
-    FILE = PreFile(FilePath = "原始数据目录/",PieceType = PieceType)
+    # # File pre processing
+    # FILE = PreFile(FilePath = "原始数据目录/",PieceType = PieceType)
+    #
+    # # File rename and remove
+    # FILE.FileReName()
+    # FILE.FileResize(Output_folder = "训练数据目录/")
 
-    # File rename and remove
-    FILE.FileReName()
-    FILE.FileResize(Output_folder = "训练数据目录/")
-
-    # # Train the Network
-    # Train = Training(batch_size = 64, num_batch = 3, categorizes = 4, train_folder = "训练数据目录/")
-    # Train.train()
+    # Train the Network
+    Train = Training(batch_size = 8, num_batch = 2, categorizes = 14, train_folder = "训练数据目录/")
+    Train.train()
 
 
 if __name__ == "__main__":
