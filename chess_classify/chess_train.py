@@ -40,7 +40,7 @@ class PreFile(object):
                 new_img.save(os.path.join(Output_folder, os.path.basename(subclass)))
         print("resize finish!")
 
-
+# Train the CNN model
 class Training(object):
     def __init__(self,batch_size,num_batch,categorizes,train_folder):
         self.batch_size = batch_size
@@ -76,15 +76,15 @@ class Training(object):
         model = Sequential()
 
         # CNN Layer —— 1
-        model.add(Convolution2D( # input shape:(200,200,3)
+        model.add(Convolution2D(
             input_shape = (50,50,3),
-            filters = 32, # next layer output:(200,200,32)
+            filters = 32,
             kernel_size = (5,5), # pixel filtered
             padding = "same", # 外边距处理
         ))
         model.add(Activation("relu"))
         model.add(MaxPooling2D(
-            pool_size = (2,2), # next layer output:(100,100,32)
+            pool_size = (2,2),
             strides = (2,2),
             padding = "same"
         ))
