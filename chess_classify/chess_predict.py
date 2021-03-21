@@ -10,9 +10,10 @@ class Prediction(object):
         self.PieceType = PieceType
 
     def Predict(self):
+
         model = load_model(self.model_file)
 
-        # Deal the image's shape\
+        # Deal the image's shape
         origin_image = Image.open(self.predict_file)
         resieze_image = origin_image.resize((50,50),Image.BILINEAR)
         resieze_image.save(self.predict_file)

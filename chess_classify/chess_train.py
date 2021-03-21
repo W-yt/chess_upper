@@ -42,36 +42,55 @@ class PreFile(object):
 
 # Train the CNN model
 class Training(object):
-    def __init__(self,batch_size,num_batch,categorizes,train_folder):
+    def __init__(self,batch_size,num_batch,categorizes,train_folder,test_folder):
         self.batch_size = batch_size
         self.number_batch = num_batch
         self.categories = categorizes
         self.train_folder = train_folder
+        self.test_folder = test_folder
 
     def read_train_images(self,filename):
         img = Image.open(self.train_folder+filename)
         return np.array(img)
 
+    def read_test_images(self,filename):
+        img = Image.open(self.test_folder+filename)
+        return np.array(img)
+
     def train(self):
         train_image_list = []
         train_label_list = []
+        test_image_list = []
+        test_label_list = []
         for file in os.listdir(self.train_folder):
             files_img_in_array = self.read_train_images(filename = file)
             train_image_list.append(files_img_in_array)
             train_label_list.append(int(file.split("_")[0]))
             # print(Train_list_label)
+        for file in os.listdir(self.test_folder):
+            files_img_in_array = self.read_test_images(filename = file)
+            test_image_list.append(files_img_in_array)
+            test_label_list.append(int(file.split("_")[0]))
+            # print(Test_list_label)
 
         train_image_list = np.array(train_image_list)
         train_label_list = np.array(train_label_list)
+        test_image_list = np.array(test_image_list)
+        test_label_list = np.array(test_label_list)
 
         # print(train_image_list.shape)
         # print(train_label_list.shape)
+        # print(test_image_list.shape)
+        # print(test_label_list.shape)
 
         print("model label set finish!")
 
         train_label_list = np_utils.to_categorical(train_label_list,self.categories)
         train_image_list = train_image_list.astype("float32")
         train_image_list /=255.0
+        test_label_list = np_utils.to_categorical(test_label_list,self.categories)
+        test_image_list = test_image_list.astype("float32")
+        test_image_list /=255.0
 
         model = Sequential()
 
@@ -130,6 +149,7 @@ class Training(object):
                   y = train_label_list,
                   epochs = self.number_batch,
                   batch_size = self.batch_size,
+                  validation_data = (test_image_list,test_label_list),
                   verbose = 1)
 
         # Save your work model
