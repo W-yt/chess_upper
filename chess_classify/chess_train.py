@@ -31,15 +31,16 @@ class PreFile(object):
             type_counter += 1
         print("rename finish!")
 
-    def FileRemove(self,Output_folder):
+    def FileResize(self,Output_folder):
         for type in self.PieceType:
             subfolder = os.listdir(self.FilePath + type)
             for subclass in subfolder:
                 img_open = Image.open(self.FilePath + type + "/" + str(subclass))
-                img_open.save(os.path.join(Output_folder, os.path.basename(subclass)))
-        print("remove finish!")
+                new_img = img_open.resize((50,50),Image.BILINEAR)
+                new_img.save(os.path.join(Output_folder, os.path.basename(subclass)))
+        print("resize finish!")
 
-
+# Train the CNN model
 class Training(object):
     def __init__(self,batch_size,num_batch,categorizes,train_folder):
         self.batch_size = batch_size
@@ -75,35 +76,35 @@ class Training(object):
         model = Sequential()
 
         # CNN Layer —— 1
-        model.add(Convolution2D( # input shape:(200,200,3)
-            input_shape = (200,200,3),
-            filters = 32, # next layer output:(200,200,32)
+        model.add(Convolution2D(
+            input_shape = (50,50,3),
+            filters = 32,
             kernel_size = (5,5), # pixel filtered
             padding = "same", # 外边距处理
         ))
         model.add(Activation("relu"))
         model.add(MaxPooling2D(
-            pool_size = (2,2), # next layer output:(100,100,32)
+            pool_size = (2,2),
             strides = (2,2),
             padding = "same"
         ))
 
         # CNN Layer —— 2
         model.add(Convolution2D(
-            filters = 64, # next layer output:(100,100,64)
+            filters = 64,
             kernel_size = (2,2), # pixel filtered
             padding = "same", # 外边距处理
         ))
         model.add(Activation("relu"))
         model.add(MaxPooling2D(
-            pool_size = (2,2), # next layer output:(50,50,64)
+            pool_size = (2,2),
             strides = (2,2),
             padding = "same"))
 
-        # Fully connected Layer —— 1
         model.add(Flatten()) # 降维
-        # model.add(Dense(1024))
-        # model.add(Activation("relu"))
+        # Fully connected Layer —— 1
+        model.add(Dense(1024))
+        model.add(Activation("relu"))
         # Fully connected Layer —— 2
         model.add(Dense(512))
         model.add(Activation("relu"))
@@ -136,6 +137,7 @@ class Training(object):
 
 def MAIN():
 
+    # 爆内存的时候，测试模型的可行性时用的
     # PieceType = ["1-黑-車","2-黑-卒","3-黑-将" ,"4-黑-马"]
 
     PieceType = ["1-黑-車","2-黑-卒","3-黑-将" ,"4-黑-马" ,"5-黑-炮" ,"6-黑-士" ,"7-黑-象" ,
@@ -146,10 +148,10 @@ def MAIN():
     #
     # # File rename and remove
     # FILE.FileReName()
-    # FILE.FileRemove(Output_folder = "训练数据目录/")
+    # FILE.FileResize(Output_folder = "训练数据目录/")
 
     # Train the Network
-    Train = Training(batch_size = 1, num_batch = 50, categorizes = 14, train_folder = "训练数据目录/")
+    Train = Training(batch_size = 8, num_batch = 2, categorizes = 14, train_folder = "训练数据目录/")
     Train.train()
 
 
