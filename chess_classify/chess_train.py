@@ -13,32 +13,57 @@ warnings.filterwarnings('ignore')
 
 # Pre process images
 class PreFile(object):
-    def __init__(self,FilePath,PieceType):
-        self.FilePath = FilePath
+    def __init__(self,TrainFilePath,TestFilePath,PieceType):
+        self.TrainFilePath = TrainFilePath
+        self.TestFilePath = TestFilePath
         self.PieceType = PieceType
 
     def FileReName(self):
+        # Train file rename
         type_counter = 0
         for type in self.PieceType:
             file_counter = 0
-            subfolder = os.listdir(self.FilePath + type)
+            subfolder = os.listdir(self.TrainFilePath + type)
             for subclass in subfolder:
                 file_counter += 1
                 # print("file_counter:",file_counter)
                 # print("type_counter:",type_counter)
                 # print(subclass)
-                os.rename(self.FilePath + type + "/" + subclass, self.FilePath + type + "/" + str(type_counter) + "_" + str(file_counter) + "_" + type + ".jpg")
+                os.rename(self.TrainFilePath + type + "/" + subclass, self.TrainFilePath + type + "/" + str(type_counter) + "_" + str(file_counter) + "_" + type + ".jpg")
             type_counter += 1
-        print("rename finish!")
-
-    def FileResize(self,Output_folder):
+        print("Train file rename finish!")
+        # Test file rename
+        type_counter = 0
         for type in self.PieceType:
-            subfolder = os.listdir(self.FilePath + type)
+            file_counter = 0
+            subfolder = os.listdir(self.TestFilePath + type)
             for subclass in subfolder:
-                img_open = Image.open(self.FilePath + type + "/" + str(subclass))
+                file_counter += 1
+                # print("file_counter:",file_counter)
+                # print("type_counter:",type_counter)
+                # print(subclass)
+                os.rename(self.TestFilePath + type + "/" + subclass, self.TestFilePath + type + "/" + str(type_counter) + "_" + str(file_counter) + "_" + type + ".jpg")
+            type_counter += 1
+        print("Test file rename finish!")
+
+    def FileResize(self,Train_Output_folder,Test_Output_folder):
+        # Train file resize
+        for type in self.PieceType:
+            subfolder = os.listdir(self.TrainFilePath + type)
+            for subclass in subfolder:
+                img_open = Image.open(self.TrainFilePath + type + "/" + str(subclass))
                 new_img = img_open.resize((50,50),Image.BILINEAR)
-                new_img.save(os.path.join(Output_folder, os.path.basename(subclass)))
-        print("resize finish!")
+                new_img.save(os.path.join(Train_Output_folder, os.path.basename(subclass)))
+        print("Train file resize finish!")
+        # Test file resize
+        for type in self.PieceType:
+            subfolder = os.listdir(self.TestFilePath + type)
+            for subclass in subfolder:
+                img_open = Image.open(self.TestFilePath + type + "/" + str(subclass))
+                new_img = img_open.resize((50,50),Image.BILINEAR)
+                new_img.save(os.path.join(Test_Output_folder, os.path.basename(subclass)))
+        print("Test file resize finish!")
+
 
 # Train the CNN model
 class Training(object):
@@ -50,11 +75,11 @@ class Training(object):
         self.test_folder = test_folder
 
     def read_train_images(self,filename):
-        img = Image.open(self.train_folder+filename)
+        img = Image.open(self.train_folder + filename)
         return np.array(img)
 
     def read_test_images(self,filename):
-        img = Image.open(self.test_folder+filename)
+        img = Image.open(self.test_folder + filename)
         return np.array(img)
 
     def train(self):
@@ -67,23 +92,21 @@ class Training(object):
             train_image_list.append(files_img_in_array)
             train_label_list.append(int(file.split("_")[0]))
             # print(Train_list_label)
+        print("Train image load finish!")
         for file in os.listdir(self.test_folder):
             files_img_in_array = self.read_test_images(filename = file)
             test_image_list.append(files_img_in_array)
             test_label_list.append(int(file.split("_")[0]))
             # print(Test_list_label)
+        print("Test image load finish!")
 
         train_image_list = np.array(train_image_list)
         train_label_list = np.array(train_label_list)
         test_image_list = np.array(test_image_list)
         test_label_list = np.array(test_label_list)
-
         # print(train_image_list.shape)
         # print(train_label_list.shape)
-        # print(test_image_list.shape)
-        # print(test_label_list.shape)
-
-        print("model label set finish!")
+        print("Image to array finish!")
 
         train_label_list = np_utils.to_categorical(train_label_list,self.categories)
         train_image_list = train_image_list.astype("float32")
@@ -91,34 +114,18 @@ class Training(object):
         test_label_list = np_utils.to_categorical(test_label_list,self.categories)
         test_image_list = test_image_list.astype("float32")
         test_image_list /=255.0
+        print("Model to categorical finish!")
 
         model = Sequential()
-
         # CNN Layer —— 1
-        model.add(Convolution2D(
-            input_shape = (50,50,3),
-            filters = 32,
-            kernel_size = (5,5), # pixel filtered
-            padding = "same", # 外边距处理
-        ))
+        model.add(Convolution2D(input_shape = (50,50,3), filters = 32, kernel_size = (5,5), padding = "same"))
         model.add(Activation("relu"))
-        model.add(MaxPooling2D(
-            pool_size = (2,2),
-            strides = (2,2),
-            padding = "same"
-        ))
+        model.add(MaxPooling2D(pool_size = (2,2), strides = (2,2), padding = "same"))
 
         # CNN Layer —— 2
-        model.add(Convolution2D(
-            filters = 64,
-            kernel_size = (2,2), # pixel filtered
-            padding = "same", # 外边距处理
-        ))
+        model.add(Convolution2D(filters = 64, kernel_size = (2,2), padding = "same"))
         model.add(Activation("relu"))
-        model.add(MaxPooling2D(
-            pool_size = (2,2),
-            strides = (2,2),
-            padding = "same"))
+        model.add(MaxPooling2D(pool_size = (2,2), strides = (2,2), padding = "same"))
 
         model.add(Flatten()) # 降维
         # Fully connected Layer —— 1
@@ -138,10 +145,7 @@ class Training(object):
         adam = Adam(lr = 0.001)
 
         # Compile the model
-        model.compile(optimizer = adam,
-                      loss = "categorical_crossentropy",
-                      metrics = ["accuracy"])
-
+        model.compile(optimizer = adam, loss = "categorical_crossentropy", metrics = ["accuracy"])
         print("model compile finish!")
 
         #Fire up the network
@@ -164,16 +168,15 @@ def MAIN():
                  "8-红-兵","9-红-車","10-红-马","11-红-炮","12-红-仕","13-红-帥","14-红-相"]
 
     # # File pre processing
-    # FILE = PreFile(FilePath = "原始数据目录/",PieceType = PieceType)
+    # FILE = PreFile(TrainFilePath = "原始训练数据目录/", TestFilePath = "原始测试数据目录/", PieceType = PieceType)
     #
     # # File rename and remove
     # FILE.FileReName()
-    # FILE.FileResize(Output_folder = "训练数据目录/")
+    # FILE.FileResize(Train_Output_folder = "训练数据目录/",Test_Output_folder = "测试数据目录/")
 
     # Train the Network
-    Train = Training(batch_size = 8, num_batch = 2, categorizes = 14, train_folder = "训练数据目录/")
+    Train = Training(batch_size = 8, num_batch = 5, categorizes = 14, train_folder = "训练数据目录/", test_folder = "测试数据目录/")
     Train.train()
-
 
 if __name__ == "__main__":
     MAIN()
