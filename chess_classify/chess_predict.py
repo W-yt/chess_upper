@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image
 import os
 
+
 class Prediction(object):
     def __init__(self,ModelFile,PredictDir,PieceType):
         self.model_file = ModelFile
