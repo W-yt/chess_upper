@@ -13,6 +13,7 @@ class Board(object):
         self.max_contour_area = 0
         self.max_contour_index = 0
 
+
     def border_detect(self, binary_edge):
         # channels split and extract the yellow (BRG ==> G channel - B channel)
         src_image_b, src_image_g, src_image_r = cv.split(self.src_image)
@@ -63,6 +64,7 @@ class Board(object):
             # # find the real board and then jump out the loop
             # if(self.max_contour_area > 250000 and self.max_contour_area < 330000):
 
+
     def grid_detect(self, canny_threshold1, canny_threshold2,
                     hough_threshold, hough_minlength, hough_maxgap,
                     harris_blocksize, harris_ksize, harris_k, harris_thresh):
@@ -76,7 +78,7 @@ class Board(object):
         # morphlogy tranform
         element = np.ones((5, 5), np.uint8)
         canny_image = cv.morphologyEx(canny_image, cv.MORPH_CLOSE, element)
-        cv.imshow("canny_image", canny_image)
+        # cv.imshow("canny_image", canny_image)
 
         # hough detect the lines
         blank_board_image = np.ones(board_image_gray.shape, np.uint8)
@@ -87,16 +89,97 @@ class Board(object):
                 # print(type(line))
                 x1, y1, x2, y2 = line[0]
                 cv.line(blank_board_image, (x1, y1), (x2, y2), 255, 1)
-        cv.imshow("blank_board_image",blank_board_image)
+        # cv.imshow("blank_board_image",blank_board_image)
 
         # angular point detect
+        self.angular_point = []
         harris_image = cv.cornerHarris(blank_board_image, harris_blocksize, harris_ksize, harris_k)
-        # harris_image_show = self.board_image.copy()
-        harris_image_show = np.zeros(self.board_image.shape, dtype = np.uint8)
-        harris_image_normal = np.zeros(harris_image.shape, dtype = np.uint8)
+        harris_image_show = self.board_image.copy()
+        # pay attention to the image type
+        harris_image_normal = np.empty(harris_image.shape, dtype = np.float32)
         cv.normalize(harris_image, harris_image_normal, alpha = 0, beta = 255, norm_type = cv.NORM_MINMAX)
         for i in range(harris_image_normal.shape[0]):
             for j in range(harris_image_normal.shape[1]):
                 if int(harris_image_normal[i, j]) > harris_thresh:
-                    cv.circle(harris_image_show, (j, i), 10, (255,255,0), 3, 8)
-        cv.imshow("harris_image_show", harris_image_show)
+                    cv.circle(harris_image_show, (j, i), 5, (255,255,0), 1, 8)
+                    self.angular_point.append((j,i))
+        # cv.imshow("harris_image_show", harris_image_show)
+        print("(all)angular point num = ", len(self.angular_point))
+
+        # delete the edge point
+        # notice : list loop delete element has two method(below method or inverted order loop)
+        point_index = 0
+        while point_index < len(self.angular_point):
+            if self.angular_point[point_index][1] < 40 or self.angular_point[point_index][1] > (self.board_image.shape[0]-40) or self.angular_point[point_index][0] < 20 or self.angular_point[point_index][0] > (self.board_image.shape[1]-20):
+                del self.angular_point[point_index]
+            else:
+                point_index += 1
+        # print("(delete edge)angular point num = ", len(self.angular_point))
+        # for one_point in self.angular_point:
+        #     # one point[0] mean col
+        #     # self.board_image.shape[0] means raw
+        #     if one_point[1] < 40 or one_point[1] > (self.board_image.shape[0]-40) or one_point[0] < 20 or one_point[0] > (self.board_image.shape[1]-20):
+        #         self.angular_point.remove(one_point)
+        #         print("delete one edge point, the num of point is ", len(self.angular_point))
+
+        # delete the coincide point
+        point_index1 = 0
+        while point_index1 < len(self.angular_point):
+            point_index2 = point_index1 + 1
+            while point_index2 < len(self.angular_point):
+                if ((abs(self.angular_point[point_index1][0]-self.angular_point[point_index2][0]) + abs(self.angular_point[point_index1][1]-self.angular_point[point_index2][1])) < 50):
+                    del self.angular_point[point_index2]
+                else:
+                    point_index2 += 1
+            point_index1 += 1
+        # print("(delete coincide)angular point num = ", len(self.angular_point))
+        print("(filtrate)angular point num = ", len(self.angular_point))
+
+
+    def grid_tag(self, chess_grid_rows, chess_grid_cols):
+        # draw the point after filtrate
+        # harris_image_filtrate = self.board_image.copy()
+        for one_point in self.angular_point:
+            cv.circle(self.board_image, (one_point[0],one_point[1]), 4, (255,255,255), 2, 8)
+        # cv.imshow("harris_image_filtrate", self.board_image)
+
+        # sort the 90 chess board points(self.angular_point sort by cols default)
+        angular_point_rows = []
+        row_index = 0
+        while row_index < chess_grid_rows:
+            col_index = 0
+            # two dims list must first append this[]
+            angular_point_rows.append([])
+            while col_index < chess_grid_cols:
+                angular_point_rows[row_index].append(self.angular_point[chess_grid_cols*row_index + col_index])
+                col_index += 1
+            # angular_point_rows[row_index] = self.angular_point[row_index*chess_grid_cols : ((row_index+1)*chess_grid_cols)]
+            row_index += 1
+        print("grid group finish!")
+
+        row_index = 0
+        for row_index in range(len(angular_point_rows)):
+            angular_point_rows[row_index].sort(key = self.takeRow)
+        print("grid sort finish!")
+
+        # display the grid point tag
+        row_index = 0
+        while row_index < chess_grid_rows:
+            col_index = 0
+            while col_index < chess_grid_cols:
+                text_tag = "(" + str(row_index+1) + "," + str(col_index+1) + ")"
+                text_coord = (angular_point_rows[row_index][col_index][0]-24, angular_point_rows[row_index][col_index][1]-10)
+                cv.putText(self.board_image, text_tag, text_coord, cv.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255))
+                col_index += 1
+            row_index += 1
+        cv.imshow("board tag image",self.board_image)
+        print("board tag finish!")
+
+    def takeRow(self,elem):
+        return elem[0]
+
+
+
+
+
+
