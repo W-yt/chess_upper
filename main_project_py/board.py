@@ -12,6 +12,7 @@ class Board(object):
         self.src_image = src_image
         self.max_contour_area = 0
         self.max_contour_index = 0
+        print("board model begin!")
 
 
     def border_detect(self, binary_edge):
@@ -54,11 +55,11 @@ class Board(object):
             # cot off the chess board
             point_x = [i[0] for i in board_border_point]
             point_y = [i[1] for i in board_border_point]
-            min_x = min(point_x)
-            max_x = max(point_x)
-            min_y = min(point_y)
-            max_y = max(point_y)
-            self.board_image = self.src_image[min_y:max_y, min_x:max_x]
+            self.min_x = min(point_x)
+            self.max_x = max(point_x)
+            self.min_y = min(point_y)
+            self.max_y = max(point_y)
+            self.board_image = self.src_image[self.min_y:self.max_y, self.min_x:self.max_x]
             # cv.imshow("board_image", self.board_image)
 
             # # find the real board and then jump out the loop
