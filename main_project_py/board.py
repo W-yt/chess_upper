@@ -8,14 +8,14 @@ import cv2 as cv
 import numpy as np
 
 class Board(object):
-    def __init__(self, src_image):
-        self.src_image = src_image
+    def __init__(self):
         self.max_contour_area = 0
         self.max_contour_index = 0
         print("board model begin!")
 
 
-    def border_detect(self, binary_edge):
+    def border_detect(self, src_image, binary_edge):
+        self.src_image = src_image
         # channels split and extract the yellow (BRG ==> G channel - B channel)
         src_image_b, src_image_g, src_image_r = cv.split(self.src_image)
         yellow_image = cv.subtract(src_image_g, src_image_b)
