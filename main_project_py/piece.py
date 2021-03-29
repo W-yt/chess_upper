@@ -14,6 +14,8 @@ class Piece(object):
     def __init__(self, modelfile, piecetype):
         self.model = load_model(modelfile)
         self.piecetype = piecetype
+        self.save_num = 1
+        self.save_flag = 0
 
 
     def piece_detect(self, src_image, min_x, max_x, min_y, max_y, blue_ksize,
@@ -48,14 +50,13 @@ class Piece(object):
                 cv.circle(piece_image_draw, center, radius, (155,50,255), 2, 8, 0)
                 # draw the center of the circle
                 cv.circle(piece_image_draw, center, 3, (0,255,0), -1, 8, 0)
-                # print("center = ", center, "   ", "radius = ", radius)
+                print("center = ", center, "\t", "radius = ", radius)
                 circle_num += 1
         print("circle num : ", circle_num)
         cv.imshow("piece_image_draw", piece_image_draw)
 
 
     def piece_save(self, piece_roi_size, distance_edge, save_dir):
-        save_num = 1
         # cut off each piece
         if self.circles is not None:
             circles = np.uint16(np.around(self.circles))
@@ -65,23 +66,21 @@ class Piece(object):
                 # this need change to int, because /2 may change num to float
                 piece_save = self.piece_image[int(center_y-piece_roi_size/2):int(center_y+piece_roi_size/2),
                                               int(center_x-piece_roi_size/2):int(center_x+piece_roi_size/2)]
-                cv.imshow("piece_save", piece_save)
-
-                # above tested
-                ##############################################
-                # below no test
+                # cv.imshow("piece_save", piece_save)
 
                 # take the mid circle of piece image
                 for pixel_x in range(piece_save.shape[1]):
                     for pixel_y in range(piece_save.shape[0]):
                         if (pow(pixel_x-piece_roi_size/2,2) + pow(pixel_y-piece_roi_size/2,2)) >= distance_edge:
-                            piece_save[pixel_y][pixel_x] = [255,255,255]
+                            piece_save[pixel_y][pixel_x] = [0,0,0]
                 cv.imshow("piece_save_mid", piece_save)
 
-                # save image to setted directory
-                save_fullpath = save_dir + str(save_num)
-                save_num += 1
-                cv.imwrite(save_fullpath, piece_save)
+                # save image to stated directory
+                if self.save_flag == 1:
+                    save_fullpath = save_dir + str(self.save_num) + ".jpg"
+                    self.save_num += 1
+                    cv.imwrite(save_fullpath, piece_save)
+                    self.save_flag = 0
 
 
     def piece_predict(self, piece_roi_size):

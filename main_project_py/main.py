@@ -16,8 +16,8 @@ import cv2 as cv
 CAMERA_ADJUST = 0
 BOARD_DETECT  = 1
 PIECE_DETECT  = 1
-PIECE_SAVE    = 0
-PIECE_PREDICT = 1
+PIECE_SAVE    = 1
+PIECE_PREDICT = 0
 
 # Parameters Define
 piecetype = ["1-黑-車", "2-黑-卒", "3-黑-将", "4-黑-马", "5-黑-炮", "6-黑-士", "7-黑-象",
@@ -81,19 +81,22 @@ def MAIN():
                 piece_object.piece_detect(src_image = src_image,
                                           min_x = board_object.min_x, max_x = board_object.max_x, min_y = board_object.min_y, max_y = board_object.max_y,
                                           blue_ksize = 3,
-                                          hough_dp = 1, hough_mindist = 40, hough_param1 = 100, hough_param2 = 20, hough_minradius = 18, hough_maxradius = 21)
+                                          hough_dp = 1, hough_mindist = 40, hough_param1 = 100, hough_param2 = 20, hough_minradius = 21, hough_maxradius = 22)
             else:
                 piece_object.piece_detect(src_image = src_image,
                                           min_x = 65.4, max_x = 637.9, min_y = 82.6, max_y = 646.0,
                                           blue_ksize = 3,
-                                          hough_dp = 1, hough_mindist = 40, hough_param1 = 100, hough_param2 = 20, hough_minradius = 18, hough_maxradius = 21)
+                                          hough_dp = 1, hough_mindist = 40, hough_param1 = 100, hough_param2 = 20, hough_minradius = 21, hough_maxradius = 22)
             if(PIECE_SAVE):
-                piece_object.piece_save(piece_roi_size = 50, distance_edge = 3600, save_dir = "save_dir/")
+                # draw the area all black out of the circle with 17 pixel radius
+                piece_object.piece_save(piece_roi_size = 50, distance_edge = 289, save_dir = "temp_save_dir/")
 
             if(PIECE_PREDICT):
                 piece_object.piece_predict(piece_roi_size = 50)
 
-        cv.waitKey(30)
+        keyboard = cv.waitKey(30)
+        if keyboard == 13:
+           piece_object.save_flag = 1
 
     # cv.waitKey(0)
 
