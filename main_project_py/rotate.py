@@ -2,7 +2,7 @@
 # Chinese chess robot upper-computer main project by python #
 # Create : 2021.3.29                                        #
 # Author : W-yt                                             #
-# File   : rotate                                            #
+# File   : rotate                                           #
 # ######################################################### #
 import cv2 as cv
 import numpy as np
