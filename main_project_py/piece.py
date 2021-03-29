@@ -6,9 +6,7 @@
 # ######################################################### #
 import cv2 as cv
 import numpy as np
-import os
 from keras.models import load_model
-import matplotlib.image as processimage
 
 class Piece(object):
     def __init__(self, modelfile, piecetype):
@@ -50,7 +48,7 @@ class Piece(object):
                 cv.circle(piece_image_draw, center, radius, (155,50,255), 2, 8, 0)
                 # draw the center of the circle
                 cv.circle(piece_image_draw, center, 3, (0,255,0), -1, 8, 0)
-                print("center = ", center, "\t", "radius = ", radius)
+                # print("center = ", center, "\t", "radius = ", radius)
                 circle_num += 1
         print("circle num : ", circle_num)
         cv.imshow("piece_image_draw", piece_image_draw)

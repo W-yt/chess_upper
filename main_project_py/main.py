@@ -9,7 +9,6 @@ import board
 import piece
 import rotate
 import train
-import predict
 import cv2 as cv
 
 # Project Model Switch
@@ -49,7 +48,7 @@ def MAIN():
         frame = cv.flip(frame, 1)
         # take the middle square picture
         src_image = frame[0:720, 280:1000]
-        # cv.imshow("src_image", src_image)
+        cv.imshow("src_image", src_image)
 
         if(CAMERA_ADJUST):
             c = cv.waitKey(30)
@@ -95,8 +94,13 @@ def MAIN():
                 piece_object.piece_predict(piece_roi_size = 50)
 
         keyboard = cv.waitKey(30)
+        # press enter take one image
         if keyboard == 13:
            piece_object.save_flag = 1
+        # press space reset the save image num
+        if keyboard == 32:
+            piece_object.save_num = 1
+
 
     # cv.waitKey(0)
 
