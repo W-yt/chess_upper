@@ -7,8 +7,6 @@
 
 import board
 import piece
-import rotate
-import train
 import cv2 as cv
 
 # Project Model Switch
@@ -91,7 +89,7 @@ def MAIN():
                 piece_object.piece_save(piece_roi_size = 50, distance_edge = 289, save_dir = "temp_save_dir/")
 
             if(PIECE_PREDICT):
-                piece_object.piece_predict(piece_roi_size = 50)
+                piece_object.piece_predict(piece_roi_size = 50, distance_edge = 289)
 
         keyboard = cv.waitKey(30)
         # press enter take one image

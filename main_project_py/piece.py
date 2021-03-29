@@ -42,8 +42,8 @@ class Piece(object):
         if self.circles is not None:
             circles = np.uint16(np.around(self.circles))
             for circle in circles[0]:
-                x, y, radius = circle
-                center = (x, y)
+                center_x, center_y, radius = circle
+                center = (center_x, center_y)
                 # draw the outer circle
                 cv.circle(piece_image_draw, center, radius, (155,50,255), 2, 8, 0)
                 # draw the center of the circle
@@ -81,7 +81,7 @@ class Piece(object):
                     self.save_flag = 0
 
 
-    def piece_predict(self, piece_roi_size):
+    def piece_predict(self, piece_roi_size, distance_edge):
         # if find any piece
         if self.circles is not None:
             circles = np.uint16(np.around(self.circles))
