@@ -178,16 +178,16 @@ def MAIN():
     piecetype_english = ["1-hei-ju", "2-hei-zu", "3-hei-jiang", "4-hei-ma", "5-hei-pao", "6-hei-shi", "7-hei-xiang",
                          "8-hong-bing", "9-hong-ju", "10-hong-ma", "11-hong-pao", "12-hong-shi", "13-hong-shuai", "14-hong-xiang"]
 
-    # File pre processing
-    FILE = Prepare(TrainFilePath = "rotate_train_data/", TestFilePath = "rotate_test_data/", PieceType = piecetype_english)
+    # # File pre processing
+    # FILE = Prepare(TrainFilePath = "rotate_train_data/", TestFilePath = "rotate_test_data/", PieceType = piecetype_english)
+    #
+    # # File rename and remove
+    # FILE.FileRename()
+    # FILE.FileRemove(Train_Output_folder = "final_train_data/",Test_Output_folder = "final_test_data/")
 
-    # File rename and remove
-    FILE.FileRename()
-    FILE.FileRemove(Train_Output_folder = "final_train_data/",Test_Output_folder = "final_test_data/")
-
-    # # Train the Network
-    # Train = Training(batch_size = 8, num_batch = 5, categorizes = 14, train_folder = "训练数据目录/", test_folder = "测试数据目录/")
-    # Train.train()
+    # Train the Network
+    Train = Training(batch_size = 8, num_batch = 5, categorizes = 14, train_folder = "final_train_data/", test_folder = "final_test_data/")
+    Train.train()
 
 if __name__ == "__main__":
     MAIN()
