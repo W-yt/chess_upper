@@ -186,7 +186,7 @@ def MAIN():
     # FILE.FileRemove(Train_Output_folder = "final_train_data/",Test_Output_folder = "final_test_data/")
 
     # Train the Network
-    Train = Training(batch_size = 8, num_batch = 5, categorizes = 14, train_folder = "final_train_data/", test_folder = "final_test_data/")
+    Train = Training(batch_size = 16, num_batch = 5, categorizes = 14, train_folder = "final_train_data/", test_folder = "final_test_data/")
     Train.train()
 
 if __name__ == "__main__":

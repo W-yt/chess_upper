@@ -13,12 +13,12 @@ import cv2 as cv
 CAMERA_ADJUST = 0
 BOARD_DETECT  = 1
 PIECE_DETECT  = 1
-PIECE_SAVE    = 1
-PIECE_PREDICT = 0
+PIECE_SAVE    = 0
+PIECE_PREDICT = 1
 
 # Parameters Define
-piecetype = ["1-黑-車", "2-黑-卒", "3-黑-将", "4-黑-马", "5-黑-炮", "6-黑-士", "7-黑-象",
-             "8-红-兵", "9-红-車", "10-红-马","11-红-炮","12-红-仕","13-红-帥","14-红-相"]
+piecetype_chinese = ["1-黑-車", "2-黑-卒", "3-黑-将", "4-黑-马", "5-黑-炮", "6-黑-士", "7-黑-象",
+                     "8-红-兵", "9-红-車", "10-红-马","11-红-炮","12-红-仕","13-红-帥","14-红-相"]
 
 def MAIN():
     print("Project Start!")
@@ -38,7 +38,7 @@ def MAIN():
 
     # create the object
     board_object = board.Board()
-    piece_object = piece.Piece(modelfile = "piecefinder.h5", piecetype = piecetype)
+    piece_object = piece.Piece(modelfile = "piecefinder.h5", piecetype = piecetype_chinese)
 
     # function part for board
     while True:
@@ -92,12 +92,14 @@ def MAIN():
                 piece_object.piece_predict(piece_roi_size = 50, distance_edge = 289)
 
         keyboard = cv.waitKey(30)
-        # press enter take one image
-        if keyboard == 13:
-           piece_object.save_flag = 1
-        # press space reset the save image num
-        if keyboard == 32:
-            piece_object.save_num = 1
+
+        if(PIECE_SAVE):
+            # press enter take one image
+            if keyboard == 13:
+               piece_object.save_flag = 1
+            # press space reset the save image num
+            if keyboard == 32:
+                piece_object.save_num = 1
 
 
     # cv.waitKey(0)

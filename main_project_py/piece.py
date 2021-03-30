@@ -11,6 +11,7 @@ from keras.models import load_model
 class Piece(object):
     def __init__(self, modelfile, piecetype):
         self.model = load_model(modelfile)
+        print("cnn model load finish!")
         self.piecetype = piecetype
         self.save_num = 1
         self.save_flag = 0
@@ -50,8 +51,8 @@ class Piece(object):
                 cv.circle(piece_image_draw, center, 3, (0,255,0), -1, 8, 0)
                 # print("center = ", center, "\t", "radius = ", radius)
                 circle_num += 1
-        print("circle num : ", circle_num)
-        cv.imshow("piece_image_draw", piece_image_draw)
+        # print("circle num : ", circle_num)
+        # cv.imshow("piece_image_draw", piece_image_draw)
 
 
     def piece_save(self, piece_roi_size, distance_edge, save_dir):
@@ -91,17 +92,19 @@ class Piece(object):
                 # this need change to int, because /2 may change num to float
                 piece_predict = self.piece_image[int(center_y-piece_roi_size/2):int(center_y+piece_roi_size/2),
                                               int(center_x-piece_roi_size/2):int(center_x+piece_roi_size/2)]
-                cv.imshow("piece_predict", piece_predict)
+                # cv.imshow("piece_predict", piece_predict)
 
                 # take the mid circle of piece image
                 for pixel_x in range(piece_predict.shape[1]):
                     for pixel_y in range(piece_predict.shape[0]):
                         if (pow(pixel_x-piece_roi_size/2,2) + pow(pixel_y-piece_roi_size/2,2)) >= distance_edge:
-                            piece_predict[pixel_y][pixel_x] = [255,255,255]
+                            piece_predict[pixel_y][pixel_x] = [0,0,0]
                 cv.imshow("piece_predict_mid", piece_predict)
 
                 # change the predict image type
                 piece_predict_array = np.array(piece_predict).astype("float32")/255.0
+                # cnn model need a 4-dims array
+                piece_predict_array = piece_predict_array.reshape(1,50,50,3)
 
                 # predict the piece image
                 piece_prediction = self.model.predict(piece_predict_array)
@@ -110,6 +113,7 @@ class Piece(object):
                 predict_probability = piece_prediction[0][probable_result[0]]
                 predict_text = predict_type + str(predict_probability)
                 cv.putText(self.piece_image, predict_text, center, cv.FONT_HERSHEY_TRIPLEX, 1.0, (255,0,0))
+                print("predict result : ", predict_type)
 
 
 
