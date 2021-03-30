@@ -10,8 +10,7 @@ import numpy as np
 Train_1_Test_2 = 2
 
 # Parameters Define
-piecetype_english = ["1-hei-ju", "2-hei-zu", "3-hei-jiang", "4-hei-ma", "5-hei-pao", "6-hei-shi", "7-hei-xiang",
-                     "8-hong-bing", "9-hong-ju", "10-hong-ma","11-hong-pao","12-hong-shi","13-hong-shuai","14-hong-xiang"]
+piecetype_english = ["1-hei-ju", "2-hei-zu", "3-hei-jiang", "4-hei-ma", "5-hei-pao", "6-hei-shi", "7-hei-xiang", "8-hong-bing", "9-hong-ju", "10-hong-ma", "11-hong-pao", "12-hong-shi", "13-hong-shuai", "14-hong-xiang"]
 
 piece_roi_size = 50
 

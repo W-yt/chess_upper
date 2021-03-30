@@ -151,6 +151,7 @@ class Training(object):
         model.add(Dense(256))
         model.add(Activation("relu"))
         # Fully connected Layer —— 4
+        # model.add(Dropout(0.4))
         model.add(Dense(self.categories))
         model.add(Activation("softmax"))
 
@@ -158,7 +159,9 @@ class Training(object):
         adam = Adam(lr = 0.001)
 
         # Compile the model
-        model.compile(optimizer = adam, loss = "categorical_crossentropy", metrics = ["accuracy"])
+        model.compile(optimizer = adam,
+                      loss = "categorical_crossentropy",
+                      metrics = ["accuracy"])
         print("model compile finish!")
 
         #Fire up the network
@@ -174,9 +177,7 @@ class Training(object):
 
 
 def MAIN():
-
-    piecetype_english = ["1-hei-ju", "2-hei-zu", "3-hei-jiang", "4-hei-ma", "5-hei-pao", "6-hei-shi", "7-hei-xiang",
-                         "8-hong-bing", "9-hong-ju", "10-hong-ma", "11-hong-pao", "12-hong-shi", "13-hong-shuai", "14-hong-xiang"]
+    piecetype_english = ["1-hei-ju", "2-hei-zu", "3-hei-jiang", "4-hei-ma", "5-hei-pao", "6-hei-shi", "7-hei-xiang", "8-hong-bing", "9-hong-ju", "10-hong-ma", "11-hong-pao", "12-hong-shi", "13-hong-shuai", "14-hong-xiang"]
 
     # # File pre processing
     # FILE = Prepare(TrainFilePath = "rotate_train_data/", TestFilePath = "rotate_test_data/", PieceType = piecetype_english)
@@ -186,7 +187,7 @@ def MAIN():
     # FILE.FileRemove(Train_Output_folder = "final_train_data/",Test_Output_folder = "final_test_data/")
 
     # Train the Network
-    Train = Training(batch_size = 16, num_batch = 5, categorizes = 14, train_folder = "final_train_data/", test_folder = "final_test_data/")
+    Train = Training(batch_size = 8, num_batch = 2, categorizes = 14, train_folder = "final_train_data/", test_folder = "final_test_data/")
     Train.train()
 
 if __name__ == "__main__":
