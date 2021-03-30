@@ -30,45 +30,49 @@ class Prepare(object):
         type_counter = 0
         for type in self.PieceType:
             file_counter = 0
-            subfolder = os.listdir(self.TrainFilePath + type)
-            for subclass in subfolder:
+            sub_folder = os.listdir(self.TrainFilePath + type)
+            for subclass in sub_folder:
                 file_counter += 1
                 # print("file_counter:",file_counter)
                 # print("type_counter:",type_counter)
                 # print(subclass)
                 os.rename(self.TrainFilePath + type + "/" + subclass, self.TrainFilePath + type + "/" + str(type_counter) + "_" + str(file_counter) + "_" + type + ".jpg")
             type_counter += 1
+            print("train image rename one type!")
         print("Train file rename finish!")
         # Test file rename
         type_counter = 0
         for type in self.PieceType:
             file_counter = 0
-            subfolder = os.listdir(self.TestFilePath + type)
-            for subclass in subfolder:
+            sub_folder = os.listdir(self.TestFilePath + type)
+            for subclass in sub_folder:
                 file_counter += 1
                 # print("file_counter:",file_counter)
                 # print("type_counter:",type_counter)
                 # print(subclass)
                 os.rename(self.TestFilePath + type + "/" + subclass, self.TestFilePath + type + "/" + str(type_counter) + "_" + str(file_counter) + "_" + type + ".jpg")
             type_counter += 1
+            print("test image rename one type!")
         print("Test file rename finish!")
 
 
     def FileRemove(self,Train_Output_folder,Test_Output_folder):
         # Train file remove
         for type in self.PieceType:
-            subfolder = os.listdir(self.TrainFilePath + type)
-            for subclass in subfolder:
+            sub_folder = os.listdir(self.TrainFilePath + type)
+            for subclass in sub_folder:
                 img_open = Image.open(self.TrainFilePath + type + "/" + str(subclass))
                 img_open.save(os.path.join(Train_Output_folder, os.path.basename(subclass)))
+            print("train image remove one type!")
         print("Train file remove finish!")
         # Test file resize
         for type in self.PieceType:
-            subfolder = os.listdir(self.TestFilePath + type)
-            for subclass in subfolder:
+            sub_folder = os.listdir(self.TestFilePath + type)
+            for subclass in sub_folder:
                 img_open = Image.open(self.TestFilePath + type + "/" + str(subclass))
                 img_open.save(os.path.join(Test_Output_folder, os.path.basename(subclass)))
-        print("Test file resize finish!")
+            print("test image remove one type!")
+        print("Test file remove finish!")
 
 
 # Train the CNN model
@@ -179,7 +183,7 @@ def MAIN():
 
     # File rename and remove
     FILE.FileRename()
-    FILE.FileResize(Train_Output_folder = "final_train_data/",Test_Output_folder = "final_test_data/")
+    FILE.FileRemove(Train_Output_folder = "final_train_data/",Test_Output_folder = "final_test_data/")
 
     # # Train the Network
     # Train = Training(batch_size = 8, num_batch = 5, categorizes = 14, train_folder = "训练数据目录/", test_folder = "测试数据目录/")
