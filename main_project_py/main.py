@@ -86,7 +86,7 @@ def MAIN():
                                           hough_dp = 1, hough_mindist = 40, hough_param1 = 100, hough_param2 = 20, hough_minradius = 21, hough_maxradius = 22)
 
             if(PIECE_PREDICT):
-                piece_object.piece_predict(piece_roi_size = 50, distance_edge = 289)
+                piece_object.piece_predict(piece_roi_size = 50, distance_edge = 289, thresh_color = 90)
 
         keyboard = cv.waitKey(30)
 

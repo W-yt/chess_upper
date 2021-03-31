@@ -35,7 +35,7 @@ class Board(object):
 
         # find max contours and draw contours
         draw_image = np.zeros(self.src_image.shape, np.uint8)
-        if(len(contours) > 0):
+        if contours is not None:
             for i in range(len(contours)):
                 contour_area = cv.contourArea(contours[i])
                 if contour_area > self.max_contour_area:

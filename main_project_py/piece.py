@@ -56,7 +56,7 @@ class Piece(object):
         cv.imshow("piece_image_draw", piece_image_draw)
 
 
-    def piece_predict(self, piece_roi_size, distance_edge):
+    def piece_predict(self, piece_roi_size, distance_edge, thresh_color, mid_square_size, black_red_thresh):
         # if find any piece
         if self.circles is not None:
             circles = np.uint16(np.around(self.circles))
@@ -75,11 +75,30 @@ class Piece(object):
                             piece_predict[pixel_y][pixel_x] = [0,0,0]
                 cv.imshow("piece_predict_mid", piece_predict)
 
-                # 添加红黑分类器
                 # choose the red channel
                 piece_predict_b, piece_predict_g, piece_predict_r = cv.split(piece_predict)
-                thresh, piece_predict_thresh = cv.threshold(piece_predict_r, 128, 255,cv.THRESH_BINARY)
-                cv.imshow("piece_predict_red_channel", piece_predict_thresh)
+                # thresh and erode
+                thresh, piece_predict_process = cv.threshold(piece_predict_r, thresh_color, 255,cv.THRESH_BINARY)
+                element = cv.getStructuringElement(cv.MORPH_RECT, (5, 5))
+                piece_predict_process = cv.erode(piece_predict_process, element)
+                # piece_predict_process = cv.erode(piece_predict_process, element)
+                cv.imshow("piece_predict_red_channel", piece_predict_process)
+
+                # judge the middle 10*10 square value
+                min_edge = piece_roi_size//2 - mid_square_size//2
+                max_edge = piece_roi_size//2 + mid_square_size//2
+                square_color_sum = 0
+                pixel_x = min_edge
+                while pixel_x <= max_edge:
+                    pixel_y = min_edge
+                    while pixel_y <= max_edge:
+                        square_color_sum += piece_predict_process[pixel_y][pixel_x]
+                        pixel_y += 1
+                    pixel_x += 1
+                if square_color_sum >= black_red_thresh:
+                    print("black piece!")
+                else:
+                    print("red piece!")
 
                 # # change the predict image type
                 # piece_predict_array = np.array(piece_predict).astype("float32")/255.0
