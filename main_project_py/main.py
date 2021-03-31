@@ -17,6 +17,8 @@ PIECE_PREDICT = 1
 
 # Parameters Define
 piecetype_chinese = ["1-黑-車", "2-黑-卒", "3-黑-将", "4-黑-马", "5-黑-炮", "6-黑-士", "7-黑-象", "8-红-兵", "9-红-車", "10-红-马", "11-红-炮", "12-红-仕", "13-红-帥", "14-红-相"]
+piecetype_chinese_black = ["1-黑-車", "2-黑-卒", "3-黑-将", "4-黑-马", "5-黑-炮", "6-黑-士", "7-黑-象"]
+piecetype_chinese_red = ["8-红-兵", "9-红-車", "10-红-马", "11-红-炮", "12-红-仕", "13-红-帥", "14-红-相"]
 
 def MAIN():
     print("Project Start!")
@@ -38,7 +40,8 @@ def MAIN():
     board_object = board.Board()
     piece_object = piece.Piece(modelfile_red = "../piece_train_red/piece_finder_red.h5",
                                modelfile_black = "../piece_train_black/piece_finder_black.h5",
-                               piecetype = piecetype_chinese)
+                               piecetype_black = piecetype_chinese_black,
+                               piecetype_red = piecetype_chinese_red)
 
     # function part for board
     while True:
@@ -86,7 +89,9 @@ def MAIN():
                                           hough_dp = 1, hough_mindist = 40, hough_param1 = 100, hough_param2 = 20, hough_minradius = 21, hough_maxradius = 22)
 
             if(PIECE_PREDICT):
-                piece_object.piece_predict(piece_roi_size = 50, distance_edge = 289, thresh_color = 90)
+                piece_object.piece_predict(piece_roi_size = 50, distance_edge = 289, thresh_color = 90, mid_square_size = 10, black_red_thresh = 60*255)
+                piece_id = piece_object.piece_id
+                # print("predict result : ", piecetype_chinese[piece_id+1])
 
         keyboard = cv.waitKey(30)
 

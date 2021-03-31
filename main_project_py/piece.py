@@ -9,11 +9,12 @@ import numpy as np
 from keras.models import load_model
 
 class Piece(object):
-    def __init__(self, modelfile_red, modelfile_black, piecetype):
+    def __init__(self, modelfile_red, modelfile_black, piecetype_black, piecetype_red):
         self.model_red = load_model(modelfile_red)
         self.model_black = load_model(modelfile_black)
         print("cnn model load finish!")
-        self.piecetype = piecetype
+        self.piecetype_black = piecetype_black
+        self.piecetype_red = piecetype_red
         self.save_num = 1
         self.save_flag = 0
 
@@ -75,6 +76,11 @@ class Piece(object):
                             piece_predict[pixel_y][pixel_x] = [0,0,0]
                 cv.imshow("piece_predict_mid", piece_predict)
 
+                # change the predict image type
+                piece_predict_array = np.array(piece_predict).astype("float32")/255.0
+                # cnn model need a 4-dims array
+                piece_predict_array = piece_predict_array.reshape(1,50,50,1)
+
                 # choose the red channel
                 piece_predict_b, piece_predict_g, piece_predict_r = cv.split(piece_predict)
                 # thresh and erode
@@ -97,22 +103,34 @@ class Piece(object):
                     pixel_x += 1
                 if square_color_sum >= black_red_thresh:
                     print("black piece!")
+                    # predict the piece image
+                    piece_prediction = self.model_red.predict(piece_predict_array)
+                    probable_result = [result.argmax() for result in piece_prediction]
+                    # set the piece id (between 1~14)(black piece:1~7)
+                    self.piece_id = probable_result[0] + 1
+                    # get the predict type
+                    predict_type = self.piecetype_black[probable_result[0]]
+                    # get the predict probability
+                    predict_probability = piece_prediction[0][probable_result[0]]
+                    # display the predict result
+                    predict_text = predict_type + str(predict_probability)
+                    cv.putText(self.piece_image, predict_text, center, cv.FONT_HERSHEY_TRIPLEX, 1.0, (255,0,0))
+                    print("predict result : ", predict_type, "\t", "predict probability : ", predict_probability)
                 else:
                     print("red piece!")
-
-                # # change the predict image type
-                # piece_predict_array = np.array(piece_predict).astype("float32")/255.0
-                # # cnn model need a 4-dims array
-                # piece_predict_array = piece_predict_array.reshape(1,50,50,3)
-                #
-                # # predict the piece image
-                # piece_prediction = self.model.predict(piece_predict_array)
-                # probable_result = [result.argmax() for result in piece_prediction]
-                # predict_type = self.piecetype[probable_result[0]]
-                # predict_probability = piece_prediction[0][probable_result[0]]
-                # predict_text = predict_type + str(predict_probability)
-                # cv.putText(self.piece_image, predict_text, center, cv.FONT_HERSHEY_TRIPLEX, 1.0, (255,0,0))
-                # print("predict result : ", predict_type)
+                    # predict the piece image
+                    piece_prediction = self.model_red.predict(piece_predict_array)
+                    probable_result = [result.argmax() for result in piece_prediction]
+                    # set the piece id (between 1~14)(red piece:8~14)
+                    self.piece_id = probable_result[0] + 7 + 1
+                    # get the predict type
+                    predict_type = self.piecetype_red[probable_result[0]]
+                    # get the predict probability
+                    predict_probability = piece_prediction[0][probable_result[0]]
+                    # display the predict result
+                    predict_text = predict_type + str(predict_probability)
+                    cv.putText(self.piece_image, predict_text, center, cv.FONT_HERSHEY_TRIPLEX, 1.0, (255,0,0))
+                    print("predict result : ", predict_type, "\t", "predict probability : ", predict_probability)
 
 
 
