@@ -13,7 +13,6 @@ import cv2 as cv
 CAMERA_ADJUST = 0
 BOARD_DETECT  = 1
 PIECE_DETECT  = 1
-PIECE_SAVE    = 0
 PIECE_PREDICT = 1
 
 # Parameters Define
@@ -37,7 +36,9 @@ def MAIN():
 
     # create the object
     board_object = board.Board()
-    piece_object = piece.Piece(modelfile = "piecefinder.h5", piecetype = piecetype_chinese)
+    piece_object = piece.Piece(modelfile_red = "../piece_train_red/piece_finder_red.h5",
+                               modelfile_black = "../piece_train_black/piece_finder_black.h5",
+                               piecetype = piecetype_chinese)
 
     # function part for board
     while True:
@@ -45,7 +46,7 @@ def MAIN():
         frame = cv.flip(frame, 1)
         # take the middle square picture
         src_image = frame[0:720, 280:1000]
-        cv.imshow("src_image", src_image)
+        # cv.imshow("src_image", src_image)
 
         if(CAMERA_ADJUST):
             c = cv.waitKey(30)
@@ -83,23 +84,11 @@ def MAIN():
                                           min_x = 65.4, max_x = 637.9, min_y = 82.6, max_y = 646.0,
                                           blue_ksize = 3,
                                           hough_dp = 1, hough_mindist = 40, hough_param1 = 100, hough_param2 = 20, hough_minradius = 21, hough_maxradius = 22)
-            if(PIECE_SAVE):
-                # draw the area all black out of the circle with 17 pixel radius
-                piece_object.piece_save(piece_roi_size = 50, distance_edge = 289, save_dir = "temp_save_dir/")
 
             if(PIECE_PREDICT):
                 piece_object.piece_predict(piece_roi_size = 50, distance_edge = 289)
 
         keyboard = cv.waitKey(30)
-
-        if(PIECE_SAVE):
-            # press enter take one image
-            if keyboard == 13:
-               piece_object.save_flag = 1
-            # press space reset the save image num
-            if keyboard == 32:
-                piece_object.save_num = 1
-
 
     # cv.waitKey(0)
 
