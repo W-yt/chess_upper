@@ -34,6 +34,7 @@ class Board(object):
         contours, hierarchy = cv.findContours(morph_image, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
         # find max contours and draw contours
+        self.max_contour_area = 0
         draw_image = np.zeros(self.src_image.shape, np.uint8)
         if contours is not None:
             for i in range(len(contours)):
@@ -69,72 +70,74 @@ class Board(object):
     def grid_detect(self, canny_threshold1, canny_threshold2,
                     hough_threshold, hough_minlength, hough_maxgap,
                     harris_blocksize, harris_ksize, harris_k, harris_thresh):
-        # board image canny
-        board_image_gray = cv.cvtColor(self.board_image, cv.COLOR_BGR2GRAY)
-        # cv.imshow("gray_image", board_image_gray)
-        canny_image = cv.Canny(board_image_gray, canny_threshold1, canny_threshold2)
-        # thresh, canny_image = cv.threshold(canny_image, 128, 255, cv.THRESH_BINARY)
-        # cv.imshow("canny_image", canny_image)
+        # find the real board and then begin the grid detect
+        if self.max_contour_area > 250000 and self.max_contour_area < 330000:
+            # board image canny
+            board_image_gray = cv.cvtColor(self.board_image, cv.COLOR_BGR2GRAY)
+            # cv.imshow("gray_image", board_image_gray)
+            canny_image = cv.Canny(board_image_gray, canny_threshold1, canny_threshold2)
+            # thresh, canny_image = cv.threshold(canny_image, 128, 255, cv.THRESH_BINARY)
+            # cv.imshow("canny_image", canny_image)
 
-        # morphlogy tranform
-        element = np.ones((5, 5), np.uint8)
-        canny_image = cv.morphologyEx(canny_image, cv.MORPH_CLOSE, element)
-        # cv.imshow("canny_image", canny_image)
+            # morphlogy tranform
+            element = np.ones((5, 5), np.uint8)
+            canny_image = cv.morphologyEx(canny_image, cv.MORPH_CLOSE, element)
+            # cv.imshow("canny_image", canny_image)
 
-        # hough detect the lines
-        blank_board_image = np.ones(board_image_gray.shape, np.uint8)
-        lines = cv.HoughLinesP(canny_image, 1, np.pi / 180, hough_threshold, minLineLength = hough_minlength, maxLineGap = hough_maxgap)
-        # (is not None) is different with (!= None)
-        if lines is not None:
-            for line in lines:
-                # print(type(line))
-                x1, y1, x2, y2 = line[0]
-                cv.line(blank_board_image, (x1, y1), (x2, y2), 255, 1)
-        # cv.imshow("blank_board_image",blank_board_image)
+            # hough detect the lines
+            blank_board_image = np.ones(board_image_gray.shape, np.uint8)
+            lines = cv.HoughLinesP(canny_image, 1, np.pi / 180, hough_threshold, minLineLength = hough_minlength, maxLineGap = hough_maxgap)
+            # (is not None) is different with (!= None)
+            if lines is not None:
+                for line in lines:
+                    # print(type(line))
+                    x1, y1, x2, y2 = line[0]
+                    cv.line(blank_board_image, (x1, y1), (x2, y2), 255, 1)
+            # cv.imshow("blank_board_image",blank_board_image)
 
-        # angular point detect
-        self.angular_point = []
-        harris_image = cv.cornerHarris(blank_board_image, harris_blocksize, harris_ksize, harris_k)
-        harris_image_show = self.board_image.copy()
-        # pay attention to the image type
-        harris_image_normal = np.empty(harris_image.shape, dtype = np.float32)
-        cv.normalize(harris_image, harris_image_normal, alpha = 0, beta = 255, norm_type = cv.NORM_MINMAX)
-        for i in range(harris_image_normal.shape[0]):
-            for j in range(harris_image_normal.shape[1]):
-                if int(harris_image_normal[i, j]) > harris_thresh:
-                    cv.circle(harris_image_show, (j, i), 5, (255,255,0), 1, 8)
-                    self.angular_point.append((j,i))
-        # cv.imshow("harris_image_show", harris_image_show)
-        print("(all)angular point num = ", len(self.angular_point))
+            # angular point detect
+            self.angular_point = []
+            harris_image = cv.cornerHarris(blank_board_image, harris_blocksize, harris_ksize, harris_k)
+            harris_image_show = self.board_image.copy()
+            # pay attention to the image type
+            harris_image_normal = np.empty(harris_image.shape, dtype = np.float32)
+            cv.normalize(harris_image, harris_image_normal, alpha = 0, beta = 255, norm_type = cv.NORM_MINMAX)
+            for i in range(harris_image_normal.shape[0]):
+                for j in range(harris_image_normal.shape[1]):
+                    if int(harris_image_normal[i, j]) > harris_thresh:
+                        cv.circle(harris_image_show, (j, i), 5, (255,255,0), 1, 8)
+                        self.angular_point.append((j,i))
+            # cv.imshow("harris_image_show", harris_image_show)
+            print("(all)angular point num = ", len(self.angular_point))
 
-        # delete the edge point
-        # notice : list loop delete element has two method(below method or inverted order loop)
-        point_index = 0
-        while point_index < len(self.angular_point):
-            if self.angular_point[point_index][1] < 40 or self.angular_point[point_index][1] > (self.board_image.shape[0]-40) or self.angular_point[point_index][0] < 20 or self.angular_point[point_index][0] > (self.board_image.shape[1]-20):
-                del self.angular_point[point_index]
-            else:
-                point_index += 1
-        # print("(delete edge)angular point num = ", len(self.angular_point))
-        # for one_point in self.angular_point:
-        #     # one point[0] mean col
-        #     # self.board_image.shape[0] means raw
-        #     if one_point[1] < 40 or one_point[1] > (self.board_image.shape[0]-40) or one_point[0] < 20 or one_point[0] > (self.board_image.shape[1]-20):
-        #         self.angular_point.remove(one_point)
-        #         print("delete one edge point, the num of point is ", len(self.angular_point))
-
-        # delete the coincide point
-        point_index1 = 0
-        while point_index1 < len(self.angular_point):
-            point_index2 = point_index1 + 1
-            while point_index2 < len(self.angular_point):
-                if ((abs(self.angular_point[point_index1][0]-self.angular_point[point_index2][0]) + abs(self.angular_point[point_index1][1]-self.angular_point[point_index2][1])) < 50):
-                    del self.angular_point[point_index2]
+            # delete the edge point
+            # notice : list loop delete element has two method(below method or inverted order loop)
+            point_index = 0
+            while point_index < len(self.angular_point):
+                if self.angular_point[point_index][1] < 40 or self.angular_point[point_index][1] > (self.board_image.shape[0]-40) or self.angular_point[point_index][0] < 20 or self.angular_point[point_index][0] > (self.board_image.shape[1]-20):
+                    del self.angular_point[point_index]
                 else:
-                    point_index2 += 1
-            point_index1 += 1
-        # print("(delete coincide)angular point num = ", len(self.angular_point))
-        print("(filtrate)angular point num = ", len(self.angular_point))
+                    point_index += 1
+            # print("(delete edge)angular point num = ", len(self.angular_point))
+            # for one_point in self.angular_point:
+            #     # one point[0] mean col
+            #     # self.board_image.shape[0] means raw
+            #     if one_point[1] < 40 or one_point[1] > (self.board_image.shape[0]-40) or one_point[0] < 20 or one_point[0] > (self.board_image.shape[1]-20):
+            #         self.angular_point.remove(one_point)
+            #         print("delete one edge point, the num of point is ", len(self.angular_point))
+
+            # delete the coincide point
+            point_index1 = 0
+            while point_index1 < len(self.angular_point):
+                point_index2 = point_index1 + 1
+                while point_index2 < len(self.angular_point):
+                    if ((abs(self.angular_point[point_index1][0]-self.angular_point[point_index2][0]) + abs(self.angular_point[point_index1][1]-self.angular_point[point_index2][1])) < 50):
+                        del self.angular_point[point_index2]
+                    else:
+                        point_index2 += 1
+                point_index1 += 1
+            # print("(delete coincide)angular point num = ", len(self.angular_point))
+            print("(filtrate)angular point num = ", len(self.angular_point))
 
 
     def grid_tag(self, chess_grid_rows, chess_grid_cols):

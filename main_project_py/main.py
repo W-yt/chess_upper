@@ -49,7 +49,7 @@ def MAIN():
         frame = cv.flip(frame, 1)
         # take the middle square picture
         src_image = frame[0:720, 280:1000]
-        # cv.imshow("src_image", src_image)
+        cv.imshow("src_image", src_image)
 
         if(CAMERA_ADJUST):
             c = cv.waitKey(30)
