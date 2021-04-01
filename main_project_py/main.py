@@ -5,6 +5,7 @@
 # File   : main                                             #
 # ######################################################### #
 
+import time
 import board
 import piece
 import cv2 as cv
@@ -16,7 +17,8 @@ PIECE_DETECT  = 1
 PIECE_PREDICT = 1
 
 # Parameters Define
-piecetype_chinese = ["1-黑-車", "2-黑-卒", "3-黑-将", "4-黑-马", "5-黑-炮", "6-黑-士", "7-黑-象", "8-红-兵", "9-红-車", "10-红-马", "11-红-炮", "12-红-仕", "13-红-帥", "14-红-相"]
+piecetype_chinese = ["1-黑-車", "2-黑-卒", "3-黑-将", "4-黑-马", "5-黑-炮", "6-黑-士", "7-黑-象",
+                     "8-红-兵", "9-红-車", "10-红-马", "11-红-炮", "12-红-仕", "13-红-帥", "14-红-相"]
 piecetype_chinese_black = ["1-黑-車", "2-黑-卒", "3-黑-将", "4-黑-马", "5-黑-炮", "6-黑-士", "7-黑-象"]
 piecetype_chinese_red = ["8-红-兵", "9-红-車", "10-红-马", "11-红-炮", "12-红-仕", "13-红-帥", "14-红-相"]
 
@@ -49,7 +51,7 @@ def MAIN():
         frame = cv.flip(frame, 1)
         # take the middle square picture
         src_image = frame[0:720, 280:1000]
-        cv.imshow("src_image", src_image)
+        # cv.imshow("src_image", src_image)
 
         if(CAMERA_ADJUST):
             c = cv.waitKey(30)
@@ -73,6 +75,10 @@ def MAIN():
 
     # function part for piece
     while True:
+        # get loop begin time
+        begin_time = round(time.time() * 1000)
+
+        # get camera image
         ret, frame = capture.read()
         frame = cv.flip(frame, 1)
         # take the middle square picture
@@ -92,10 +98,14 @@ def MAIN():
 
             if(PIECE_PREDICT):
                 piece_object.piece_predict(piece_roi_size = 50, distance_edge = 289, thresh_color = 90, mid_square_size = 10, red_black_thresh = 50*255)
-                piece_id = piece_object.piece_id
-                print("predict result : ", piecetype_chinese[piece_id+1])
 
-        keyboard = cv.waitKey(30)
+        keyboard = cv.waitKey(3)
+
+        # get the loop end time and calculate the fps
+        end_time = round(time.time() * 1000)
+        loop_time = end_time - begin_time
+        fps = 1000/loop_time
+        print("fps :", format(fps, '.2f'))
 
     # cv.waitKey(0)
 
