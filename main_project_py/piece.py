@@ -57,7 +57,7 @@ class Piece(object):
         cv.imshow("piece_image_draw", piece_image_draw)
 
 
-    def piece_predict(self, piece_roi_size, distance_edge, thresh_color, mid_square_size, black_red_thresh):
+    def piece_predict(self, piece_roi_size, distance_edge, thresh_color, mid_square_size, red_black_thresh):
         # if find any piece
         if self.circles is not None:
             circles = np.uint16(np.around(self.circles))
@@ -76,61 +76,76 @@ class Piece(object):
                             piece_predict[pixel_y][pixel_x] = [0,0,0]
                 cv.imshow("piece_predict_mid", piece_predict)
 
-                # change the predict image type
-                piece_predict_array = np.array(piece_predict).astype("float32")/255.0
-                # cnn model need a 4-dims array
-                piece_predict_array = piece_predict_array.reshape(1,50,50,1)
-
-                # choose the red channel
+                # split the three channel of piece image
                 piece_predict_b, piece_predict_g, piece_predict_r = cv.split(piece_predict)
+                # choose the red channel for piece color detect
+                piece_predict_color = piece_predict_r
                 # thresh and erode
-                thresh, piece_predict_process = cv.threshold(piece_predict_r, thresh_color, 255,cv.THRESH_BINARY)
+                thresh, piece_predict_color = cv.threshold(piece_predict_color, thresh_color, 255,cv.THRESH_BINARY)
                 element = cv.getStructuringElement(cv.MORPH_RECT, (5, 5))
-                piece_predict_process = cv.erode(piece_predict_process, element)
-                # piece_predict_process = cv.erode(piece_predict_process, element)
-                cv.imshow("piece_predict_red_channel", piece_predict_process)
+                piece_predict_color = cv.erode(piece_predict_color, element)
+                cv.imshow("piece_predict_color(red)", piece_predict_color)
 
-                # # judge the middle 10*10 square value
-                # min_edge = piece_roi_size//2 - mid_square_size//2
-                # max_edge = piece_roi_size//2 + mid_square_size//2
-                # square_color_sum = 0
-                # pixel_x = min_edge
-                # while pixel_x <= max_edge:
-                #     pixel_y = min_edge
-                #     while pixel_y <= max_edge:
-                #         square_color_sum += piece_predict_process[pixel_y][pixel_x]
-                #         pixel_y += 1
-                #     pixel_x += 1
-                # if square_color_sum >= black_red_thresh:
-                #     print("black piece!")
-                #     # predict the piece image
-                #     piece_prediction = self.model_red.predict(piece_predict_array)
-                #     probable_result = [result.argmax() for result in piece_prediction]
-                #     # set the piece id (between 1~14)(black piece:1~7)
-                #     self.piece_id = probable_result[0] + 1
-                #     # get the predict type
-                #     predict_type = self.piecetype_black[probable_result[0]]
-                #     # get the predict probability
-                #     predict_probability = piece_prediction[0][probable_result[0]]
-                #     # display the predict result
-                #     predict_text = predict_type + str(predict_probability)
-                #     cv.putText(self.piece_image, predict_text, center, cv.FONT_HERSHEY_TRIPLEX, 1.0, (255,0,0))
-                #     print("predict result : ", predict_type, "\t", "predict probability : ", predict_probability)
-                # else:
-                #     print("red piece!")
-                #     # predict the piece image
-                #     piece_prediction = self.model_red.predict(piece_predict_array)
-                #     probable_result = [result.argmax() for result in piece_prediction]
-                #     # set the piece id (between 1~14)(red piece:8~14)
-                #     self.piece_id = probable_result[0] + 7 + 1
-                #     # get the predict type
-                #     predict_type = self.piecetype_red[probable_result[0]]
-                #     # get the predict probability
-                #     predict_probability = piece_prediction[0][probable_result[0]]
-                #     # display the predict result
-                #     predict_text = predict_type + str(predict_probability)
-                #     cv.putText(self.piece_image, predict_text, center, cv.FONT_HERSHEY_TRIPLEX, 1.0, (255,0,0))
-                #     print("predict result : ", predict_type, "\t", "predict probability : ", predict_probability)
+                # choose the green channel for piece type detect
+                piece_predict_type = piece_predict_g
+                # change the predict image type
+                piece_predict_type_array = np.array(piece_predict_type).astype("float32")/255.0
+                # cnn model need a 4-dims array
+                piece_predict_type_array = piece_predict_type_array.reshape(1,50,50,1)
+
+                # judge the middle 10*10 square value
+                min_edge = piece_roi_size//2 - mid_square_size//2
+                max_edge = piece_roi_size//2 + mid_square_size//2
+                square_color_sum = 0
+                pixel_x = min_edge
+                while pixel_x <= max_edge:
+                    pixel_y = min_edge
+                    while pixel_y <= max_edge:
+                        square_color_sum += piece_predict_color[pixel_y][pixel_x]
+                        pixel_y += 1
+                    pixel_x += 1
+                # print("square_color_sum : ", square_color_sum)
+                if square_color_sum >= red_black_thresh:
+                    # print("red piece!")
+                    # predict the piece image
+                    piece_prediction = self.model_red.predict(piece_predict_type_array)
+                    probable_result = [result.argmax() for result in piece_prediction]
+                    # set the piece id (between 1~14)(black piece:1~7)
+                    self.piece_id = probable_result[0] + 1
+                    # get the predict type
+                    predict_type = self.piecetype_red[probable_result[0]]
+                    # get the predict probability
+                    predict_probability = piece_prediction[0][probable_result[0]]
+                    # display the predict result
+                    predict_text = predict_type + str(predict_probability)
+                    cv.putText(self.piece_image, predict_text, center, cv.FONT_HERSHEY_TRIPLEX, 1.0, (255,0,0))
+                    print("predict result : ", predict_type, "\t", "predict probability : ", predict_probability)
+                else:
+                    # print("black piece!")
+                    # predict the piece image
+                    piece_prediction = self.model_black.predict(piece_predict_type_array)
+                    probable_result = [result.argmax() for result in piece_prediction]
+                    # set the piece id (between 1~14)(red piece:8~14)
+                    self.piece_id = probable_result[0] + 7 + 1
+                    # get the predict type
+                    predict_type = self.piecetype_black[probable_result[0]]
+                    # get the predict probability
+                    predict_probability = piece_prediction[0][probable_result[0]]
+                    # display the predict result
+                    predict_text = predict_type + str(predict_probability)
+                    cv.putText(self.piece_image, predict_text, center, cv.FONT_HERSHEY_TRIPLEX, 1.0, (255,0,0))
+                    print("predict result : ", predict_type, "\t", "predict probability : ", predict_probability)
+
+
+
+
+
+
+
+
+
+
+
 
 
 

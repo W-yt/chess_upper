@@ -11,7 +11,7 @@ import cv2 as cv
 
 # Project Model Switch
 CAMERA_ADJUST = 0
-BOARD_DETECT  = 1
+BOARD_DETECT  = 0
 PIECE_DETECT  = 1
 PIECE_PREDICT = 1
 
@@ -62,12 +62,14 @@ def MAIN():
             if len(board_object.angular_point) == 90:
                 break
             c = cv.waitKey(30)
+        else:
+            break
 
     if(BOARD_DETECT):
         board_object.grid_tag(chess_grid_rows = 9, chess_grid_cols = 10)
 
-    # after function for board you need place the piece on board and press the keyboard
-    cv.waitKey(0)
+        # after function for board you need place the piece on board and press the keyboard
+        cv.waitKey(0)
 
     # function part for piece
     while True:
@@ -84,13 +86,13 @@ def MAIN():
                                           hough_dp = 1, hough_mindist = 40, hough_param1 = 100, hough_param2 = 20, hough_minradius = 21, hough_maxradius = 22)
             else:
                 piece_object.piece_detect(src_image = src_image,
-                                          min_x = 65.4, max_x = 637.9, min_y = 82.6, max_y = 646.0,
+                                          min_x = 65, max_x = 638, min_y = 83, max_y = 646,
                                           blue_ksize = 3,
                                           hough_dp = 1, hough_mindist = 40, hough_param1 = 100, hough_param2 = 20, hough_minradius = 21, hough_maxradius = 22)
 
             if(PIECE_PREDICT):
-                piece_object.piece_predict(piece_roi_size = 50, distance_edge = 289, thresh_color = 90, mid_square_size = 10, black_red_thresh = 60*255)
-                piece_id = piece_object.piece_id
+                piece_object.piece_predict(piece_roi_size = 50, distance_edge = 289, thresh_color = 90, mid_square_size = 10, red_black_thresh = 50*255)
+                # piece_id = piece_object.piece_id
                 # print("predict result : ", piecetype_chinese[piece_id+1])
 
         keyboard = cv.waitKey(30)
