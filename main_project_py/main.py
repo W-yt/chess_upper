@@ -92,8 +92,8 @@ def MAIN():
 
             if(PIECE_PREDICT):
                 piece_object.piece_predict(piece_roi_size = 50, distance_edge = 289, thresh_color = 90, mid_square_size = 10, red_black_thresh = 50*255)
-                # piece_id = piece_object.piece_id
-                # print("predict result : ", piecetype_chinese[piece_id+1])
+                piece_id = piece_object.piece_id
+                print("predict result : ", piecetype_chinese[piece_id+1])
 
         keyboard = cv.waitKey(30)
 

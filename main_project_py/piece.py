@@ -24,7 +24,7 @@ class Piece(object):
         self.src_image = src_image
         # cot off the chess board
         self.piece_image = self.src_image[min_y:max_y, min_x:max_x]
-        piece_image_draw = self.piece_image.copy()
+        self.piece_image_draw = self.piece_image.copy()
         # cv.imshow("piece image", self.piece_image)
 
         # image enhancement
@@ -48,13 +48,13 @@ class Piece(object):
                 center_x, center_y, radius = circle
                 center = (center_x, center_y)
                 # draw the outer circle
-                cv.circle(piece_image_draw, center, radius, (155,50,255), 2, 8, 0)
+                cv.circle(self.piece_image_draw, center, radius, (155,50,255), 2, 8, 0)
                 # draw the center of the circle
-                cv.circle(piece_image_draw, center, 3, (0,255,0), -1, 8, 0)
+                cv.circle(self.piece_image_draw, center, 3, (0,255,0), -1, 8, 0)
                 # print("center = ", center, "\t", "radius = ", radius)
                 circle_num += 1
         # print("circle num : ", circle_num)
-        cv.imshow("piece_image_draw", piece_image_draw)
+        # cv.imshow("piece_image_draw", self.piece_image_draw)
 
 
     def piece_predict(self, piece_roi_size, distance_edge, thresh_color, mid_square_size, red_black_thresh):
@@ -74,7 +74,7 @@ class Piece(object):
                     for pixel_y in range(piece_predict.shape[0]):
                         if (pow(pixel_x-piece_roi_size/2,2) + pow(pixel_y-piece_roi_size/2,2)) >= distance_edge:
                             piece_predict[pixel_y][pixel_x] = [0,0,0]
-                cv.imshow("piece_predict_mid", piece_predict)
+                # cv.imshow("piece_predict_mid", piece_predict)
 
                 # split the three channel of piece image
                 piece_predict_b, piece_predict_g, piece_predict_r = cv.split(piece_predict)
@@ -84,7 +84,7 @@ class Piece(object):
                 thresh, piece_predict_color = cv.threshold(piece_predict_color, thresh_color, 255,cv.THRESH_BINARY)
                 element = cv.getStructuringElement(cv.MORPH_RECT, (5, 5))
                 piece_predict_color = cv.erode(piece_predict_color, element)
-                cv.imshow("piece_predict_color(red)", piece_predict_color)
+                # cv.imshow("piece_predict_color(red)", piece_predict_color)
 
                 # choose the green channel for piece type detect
                 piece_predict_type = piece_predict_g
@@ -118,9 +118,9 @@ class Piece(object):
                     predict_probability = piece_prediction[0][probable_result[0]]
                     # display the predict result
                     predict_text = predict_type + str(predict_probability)
-                    cv.putText(self.piece_image, predict_text, center, cv.FONT_HERSHEY_TRIPLEX, 1.0, (255,0,0))
-                    print("predict result : ", predict_type, end = "\t")
-                    print("predict probability : ", format(predict_probability*100, '.2f'), "%")
+                    cv.putText(self.piece_image_draw, predict_text, center, cv.FONT_HERSHEY_TRIPLEX, 1.0, (255,0,0))
+                    # print("predict result : ", predict_type, end = "\t")
+                    # print("predict probability : ", format(predict_probability*100, '.2f'), "%")
                 else:
                     # print("black piece!")
                     # predict the piece image
@@ -134,10 +134,10 @@ class Piece(object):
                     predict_probability = piece_prediction[0][probable_result[0]]
                     # display the predict result
                     predict_text = predict_type + str(predict_probability)
-                    cv.putText(self.piece_image, predict_text, center, cv.FONT_HERSHEY_TRIPLEX, 1.0, (255,0,0))
-                    print("predict result : ", predict_type, end = "\t")
-                    print("predict probability : ", format(predict_probability*100, '.2f'), "%")
-
+                    cv.putText(self.piece_image_draw, predict_text, center, cv.FONT_HERSHEY_TRIPLEX, 1.0, (255,0,0))
+                    # print("predict result : ", predict_type, end = "\t")
+                    # print("predict probability : ", format(predict_probability*100, '.2f'), "%")
+            cv.imshow("piece_image_draw", self.piece_image_draw)
 
 
 
