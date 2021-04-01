@@ -119,7 +119,8 @@ class Piece(object):
                     # display the predict result
                     predict_text = predict_type + str(predict_probability)
                     cv.putText(self.piece_image, predict_text, center, cv.FONT_HERSHEY_TRIPLEX, 1.0, (255,0,0))
-                    print("predict result : ", predict_type, "\t", "predict probability : ", predict_probability)
+                    print("predict result : ", predict_type, end = "\t")
+                    print("predict probability : ", format(predict_probability*100, '.2f'), "%")
                 else:
                     # print("black piece!")
                     # predict the piece image
@@ -134,7 +135,8 @@ class Piece(object):
                     # display the predict result
                     predict_text = predict_type + str(predict_probability)
                     cv.putText(self.piece_image, predict_text, center, cv.FONT_HERSHEY_TRIPLEX, 1.0, (255,0,0))
-                    print("predict result : ", predict_type, "\t", "predict probability : ", predict_probability)
+                    print("predict result : ", predict_type, end = "\t")
+                    print("predict probability : ", format(predict_probability*100, '.2f'), "%")
 
 
 
