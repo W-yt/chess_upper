@@ -19,6 +19,7 @@ class Piece(object):
         self.save_flag = 0
         self.circle_num = 0
         self.center_list = []
+        self.locate_list = []
         self.type_list = []
 
     def piece_detect(self, src_image, min_x, max_x, min_y, max_y, blue_ksize,
@@ -28,6 +29,11 @@ class Piece(object):
         self.piece_image = self.src_image[min_y:max_y, min_x:max_x]
         self.piece_image_draw = self.piece_image.copy()
         # cv.imshow("piece image", self.piece_image)
+
+        # everytime begin once detect, clear the old detect result (center_List do not need)
+        self.locate_list.clear()
+        self.center_list.clear()
+        self.type_list.clear()
 
         # image enhancement
         piece_image_b, piece_image_g, piece_image_r = cv.split(self.piece_image)
@@ -140,11 +146,38 @@ class Piece(object):
                            fontFace=cv.FONT_HERSHEY_SCRIPT_COMPLEX, fontScale=0.7, color=(255, 0, 0), thickness=2)
                 # print("predict result : ", predict_type, end = "\t")
                 # print("predict probability : ", format(predict_probability*100, '.2f'), "%")
+        # cv.imshow("piece_image_draw", self.piece_image_draw)
 
-            cv.imshow("piece_image_draw", self.piece_image_draw)
 
-    def piece_locate(self):
-        pass
+    def piece_locate(self, angular_point_sorted, chess_grid_rows, chess_grid_cols):
+        piece_count = 0
+        while piece_count < self.circle_num:
+            center = self.center_list.pop()
+            # find the nearest angular_point with this center
+            row_index = 0
+            col_index = 0
+            min_distance = 200
+            near_grid = (-1,-1)
+            while row_index < chess_grid_rows:
+                col_index = 0
+                while col_index < chess_grid_cols:
+                    compare_point = angular_point_sorted[row_index][col_index]
+                    distance = abs(compare_point[0]-center[0]) + abs(compare_point[1]-center[1])
+                    if distance < min_distance:
+                        min_distance = distance
+                        near_grid = (row_index,col_index)
+                    col_index += 1
+                row_index += 1
+            self.locate_list.append(near_grid)
+            # display the locate result
+            text_tag = "(" + str(near_grid[0]) + "," + str(near_grid[1]) + ")"
+            text_coord = (center[0] - 24, center[1] - 6)
+            cv.putText(self.piece_image_draw, text_tag, text_coord, cv.FONT_HERSHEY_TRIPLEX, 0.5, (255, 255, 255))
+            piece_count += 1
+        # because using the pop function get element, final need reverse the list
+        self.locate_list.reverse()
+        cv.imshow("piece_image_draw", self.piece_image_draw)
+
 
 
 

@@ -148,22 +148,22 @@ class Board(object):
         # cv.imshow("harris_image_filtrate", self.board_image)
 
         # sort the 90 chess board points(self.angular_point sort by cols default)
-        angular_point_rows = []
+        self.angular_point_rows = []
         row_index = 0
         while row_index < chess_grid_rows:
             col_index = 0
             # two dims list must first append this[]
-            angular_point_rows.append([])
+            self.angular_point_rows.append([])
             while col_index < chess_grid_cols:
-                angular_point_rows[row_index].append(self.angular_point[chess_grid_cols*row_index + col_index])
+                self.angular_point_rows[row_index].append(self.angular_point[chess_grid_cols*row_index + col_index])
                 col_index += 1
             # angular_point_rows[row_index] = self.angular_point[row_index*chess_grid_cols : ((row_index+1)*chess_grid_cols)]
             row_index += 1
         print("grid group finish!")
 
         row_index = 0
-        for row_index in range(len(angular_point_rows)):
-            angular_point_rows[row_index].sort(key = self.takeRow)
+        for row_index in range(len(self.angular_point_rows)):
+            self.angular_point_rows[row_index].sort(key = self.takeRow)
         print("grid sort finish!")
 
         # display the grid point tag
@@ -171,8 +171,8 @@ class Board(object):
         while row_index < chess_grid_rows:
             col_index = 0
             while col_index < chess_grid_cols:
-                text_tag = "(" + str(row_index+1) + "," + str(col_index+1) + ")"
-                text_coord = (angular_point_rows[row_index][col_index][0]-24, angular_point_rows[row_index][col_index][1]-10)
+                text_tag = "(" + str(row_index) + "," + str(col_index) + ")"
+                text_coord = (self.angular_point_rows[row_index][col_index][0]-24, self.angular_point_rows[row_index][col_index][1]-10)
                 cv.putText(self.board_image, text_tag, text_coord, cv.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255))
                 col_index += 1
             row_index += 1

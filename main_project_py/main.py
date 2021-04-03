@@ -12,7 +12,7 @@ import cv2 as cv
 
 # Project Model Switch
 CAMERA_ADJUST = 0
-BOARD_DETECT  = 0
+BOARD_DETECT  = 1
 PIECE_DETECT  = 1
 PIECE_PREDICT = 1
 
@@ -98,6 +98,7 @@ def MAIN():
 
             if(PIECE_PREDICT):
                 piece_object.piece_predict(piece_roi_size = 50, distance_edge = 289, thresh_color = 90, mid_square_size = 10, red_black_thresh = 50*255)
+                piece_object.piece_locate(angular_point_sorted = board_object.angular_point_rows, chess_grid_rows = 9, chess_grid_cols = 10)
 
         keyboard = cv.waitKey(3)
 
