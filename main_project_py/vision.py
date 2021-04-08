@@ -13,8 +13,8 @@ from PyQt5.QtCore import *
 
 # Project Model Switch
 CAMERA_ADJUST = 0
-BOARD_DETECT  = 1
-PIECE_DETECT  = 0
+BOARD_DETECT  = 0
+PIECE_DETECT  = 1
 PIECE_PREDICT = 0
 
 # Parameters Define
@@ -102,14 +102,14 @@ class VersionThread(QThread):
                                               min_x=board_object.min_x, max_x=board_object.max_x,
                                               min_y=board_object.min_y, max_y=board_object.max_y,
                                               blue_ksize=3,
-                                              hough_dp=1, hough_mindist=40, hough_param1=100, hough_param2=20,
-                                              hough_minradius=21, hough_maxradius=22)
+                                              hough_dp=1, hough_mindist=40, hough_param1=100, hough_param2=15,
+                                              hough_minradius=23, hough_maxradius=26)
                 else:
                     piece_object.piece_detect(src_image=src_image,
                                               min_x=0, max_x=719, min_y=0, max_y=719,
                                               blue_ksize=3,
-                                              hough_dp=1, hough_mindist=40, hough_param1=100, hough_param2=20,
-                                              hough_minradius=21, hough_maxradius=22)
+                                              hough_dp=1, hough_mindist=50, hough_param1=100, hough_param2=15,
+                                              hough_minradius=25, hough_maxradius=26)
 
                 if (PIECE_PREDICT):
                     piece_object.piece_predict(piece_roi_size=50, distance_edge=289, thresh_color=90,
@@ -117,13 +117,13 @@ class VersionThread(QThread):
                     piece_object.piece_locate(angular_point_sorted=board_object.angular_point_rows, chess_grid_rows=9,
                                               chess_grid_cols=10)
 
-            keyboard = cv.waitKey(3)
+            keyboard = cv.waitKey(1)
 
             # get the loop end time and calculate the fps
             end_time = round(time.time() * 1000)
             loop_time = end_time - begin_time
             fps = 1000 / loop_time
-            print("fps :", format(fps, '.2f'))
+            # print("fps :", format(fps, '.2f'))
 
             # send piece detect finish signal
             self.piece_signal.emit()
