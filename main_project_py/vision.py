@@ -14,8 +14,8 @@ from PyQt5.QtCore import *
 # Project Model Switch
 CAMERA_ADJUST = 0
 BOARD_DETECT  = 1
-PIECE_DETECT  = 1
-PIECE_PREDICT = 1
+PIECE_DETECT  = 0
+PIECE_PREDICT = 0
 
 # Parameters Define
 piecetype_chinese = ["1-黑-車", "2-黑-卒", "3-黑-将", "4-黑-马", "5-黑-炮", "6-黑-士", "7-黑-象",
@@ -59,15 +59,16 @@ class VersionThread(QThread):
             frame = cv.flip(frame, 1)
             # take the middle square picture
             src_image = frame[0:720, 280:1000]
-            # cv.imshow("src_image", src_image)
 
             if (CAMERA_ADJUST):
+                cv.imshow("src_image", src_image)
                 c = cv.waitKey(30)
+                continue
 
             if (BOARD_DETECT):
                 board_object.border_detect(src_image=src_image, binary_edge=90)
-                board_object.grid_detect(canny_threshold1=100, canny_threshold2=350,
-                                         hough_threshold=50, hough_minlength=400, hough_maxgap=60,
+                board_object.grid_detect(canny_threshold1=30, canny_threshold2=300,
+                                         hough_threshold=48, hough_minlength=500, hough_maxgap=80,
                                          harris_blocksize=2, harris_ksize=3, harris_k=0.04, harris_thresh=175)
                 if len(board_object.angular_point) == 90:
                     break
@@ -105,7 +106,7 @@ class VersionThread(QThread):
                                               hough_minradius=21, hough_maxradius=22)
                 else:
                     piece_object.piece_detect(src_image=src_image,
-                                              min_x=65, max_x=638, min_y=83, max_y=646,
+                                              min_x=0, max_x=719, min_y=0, max_y=719,
                                               blue_ksize=3,
                                               hough_dp=1, hough_mindist=40, hough_param1=100, hough_param2=20,
                                               hough_minradius=21, hough_maxradius=22)

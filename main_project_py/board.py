@@ -62,7 +62,7 @@ class Board(object):
             self.min_y = min(point_y)
             self.max_y = max(point_y)
             self.board_image = self.src_image[self.min_y:self.max_y, self.min_x:self.max_x]
-            # cv.imshow("board_image", self.board_image)
+            cv.imshow("board_image", self.board_image)
 
             # # find the real board and then jump out the loop
             # if(self.max_contour_area > 250000 and self.max_contour_area < 330000):
@@ -72,7 +72,9 @@ class Board(object):
                     hough_threshold, hough_minlength, hough_maxgap,
                     harris_blocksize, harris_ksize, harris_k, harris_thresh):
         # find the real board and then begin the grid detect
-        if self.max_contour_area > 250000 and self.max_contour_area < 330000:
+        # if self.max_contour_area > 250000 and self.max_contour_area < 330000:
+        # when finishing making the holder, the camera altitude is lower, so area become bigger
+        if self.max_contour_area > 400000 and self.max_contour_area < 500000:
             # board image canny
             board_image_gray = cv.cvtColor(self.board_image, cv.COLOR_BGR2GRAY)
             # cv.imshow("gray_image", board_image_gray)
@@ -81,7 +83,7 @@ class Board(object):
             # cv.imshow("canny_image", canny_image)
 
             # morphlogy tranform
-            element = np.ones((5, 5), np.uint8)
+            element = np.ones((7, 7), np.uint8)
             canny_image = cv.morphologyEx(canny_image, cv.MORPH_CLOSE, element)
             # cv.imshow("canny_image", canny_image)
 
@@ -94,6 +96,8 @@ class Board(object):
                     # print(type(line))
                     x1, y1, x2, y2 = line[0]
                     cv.line(blank_board_image, (x1, y1), (x2, y2), 255, 1)
+            element = np.ones((3, 3), np.uint8)
+            blank_board_image = cv.morphologyEx(blank_board_image, cv.MORPH_CLOSE, element)
             # cv.imshow("blank_board_image",blank_board_image)
 
             # angular point detect
