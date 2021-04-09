@@ -15,7 +15,7 @@ from PyQt5.QtCore import *
 CAMERA_ADJUST = 0
 BOARD_DETECT  = 0
 PIECE_DETECT  = 1
-PIECE_PREDICT = 0
+PIECE_PREDICT = 1
 
 # Parameters Define
 piecetype_chinese = ["1-黑-車", "2-黑-卒", "3-黑-将", "4-黑-马", "5-黑-炮", "6-黑-士", "7-黑-象",
@@ -102,8 +102,8 @@ class VersionThread(QThread):
                                               min_x=board_object.min_x, max_x=board_object.max_x,
                                               min_y=board_object.min_y, max_y=board_object.max_y,
                                               blue_ksize=3,
-                                              hough_dp=1, hough_mindist=40, hough_param1=100, hough_param2=15,
-                                              hough_minradius=23, hough_maxradius=26)
+                                              hough_dp=1, hough_mindist=50, hough_param1=100, hough_param2=15,
+                                              hough_minradius=25, hough_maxradius=26)
                 else:
                     piece_object.piece_detect(src_image=src_image,
                                               min_x=0, max_x=719, min_y=0, max_y=719,
