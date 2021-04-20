@@ -113,9 +113,9 @@ class Training(object):
             # print(Test_list_label)
         print("Test image load finish!")
 
-        train_image_list = np.array(train_image_list).reshape([31500,50,50,1])
+        train_image_list = np.array(train_image_list).reshape([18900,50,50,1])
         train_label_list = np.array(train_label_list)
-        test_image_list = np.array(test_image_list).reshape([12600,50,50,1])
+        test_image_list = np.array(test_image_list).reshape([6300,50,50,1])
         test_label_list = np.array(test_label_list)
         # print(train_image_list.shape)
         # print(train_label_list.shape)

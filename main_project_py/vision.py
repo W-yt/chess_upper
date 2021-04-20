@@ -12,10 +12,10 @@ import cv2 as cv
 from PyQt5.QtCore import *
 
 # Project Model Switch
-CAMERA_ADJUST = 0
+CAMERA_ADJUST = 1
 BOARD_DETECT  = 0
-PIECE_DETECT  = 1
-PIECE_PREDICT = 1
+PIECE_DETECT  = 0
+PIECE_PREDICT = 0
 
 # Parameters Define
 piecetype_chinese = ["1-黑-車", "2-黑-卒", "3-黑-将", "4-黑-马", "5-黑-炮", "6-黑-士", "7-黑-象",

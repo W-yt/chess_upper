@@ -27,9 +27,9 @@ for type in piecetype_english:
     file_image_count = 1
 
     if Train_1_Test_2 == 1:
-        image_num = 50
+        image_num = 30
     else:
-        image_num = 20
+        image_num = 10
 
     while file_image_count < (image_num + 1):
         input_image_name = image_src_dir + str(file_image_count) + ".jpg"
@@ -37,7 +37,7 @@ for type in piecetype_english:
         # (in windows)can not use Chinese(if use, you need to change the coding scheme)
         src_image = cv.imread(input_image_name)
         # src_image = cv.imread("origin_train_data/1-hei-ju/1.jpg", cv.IMREAD_COLOR)
-        cv.imshow("src_image", src_image)
+        # cv.imshow("src_image", src_image)
 
         center = (piece_roi_size//2, piece_roi_size//2)
 
@@ -53,17 +53,17 @@ for type in piecetype_english:
             # choose the green channel
             dst_image_b, dst_image_g, dst_image_r = cv.split(dst_image)
             dst_image = dst_image_g
-            cv.imshow("dst_image", dst_image)
+            # cv.imshow("dst_image", dst_image)
             cv.imwrite(output_image_name, dst_image)
 
             # prepare for next loop
             all_image_count += 1
             rotate_angle += 4
-            cv.waitKey(1)
+            # cv.waitKey(1)
 
         # prepare for next loop
         file_image_count += 1
-        cv.waitKey(10)
+        # cv.waitKey(10)
 
 
 

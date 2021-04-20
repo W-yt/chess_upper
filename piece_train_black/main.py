@@ -52,9 +52,9 @@ def MAIN():
 
         if(BOARD_DETECT):
             board_object.border_detect(src_image = src_image, binary_edge = 90)
-            board_object.grid_detect(canny_threshold1 = 30, canny_threshold2 = 350,
-                                     hough_threshold = 48, hough_minlength = 500, hough_maxgap = 80,
-                                     harris_blocksize = 2, harris_ksize = 3, harris_k = 0.04, harris_thresh = 175)
+            board_object.grid_detect(canny_threshold1=30, canny_threshold2=300,
+                                     hough_threshold=48, hough_minlength=500, hough_maxgap=80,
+                                     harris_blocksize=2, harris_ksize=3, harris_k=0.04, harris_thresh=175)
             if len(board_object.angular_point) == 90:
                 break
             c = cv.waitKey(30)
