@@ -12,10 +12,10 @@ import cv2 as cv
 from PyQt5.QtCore import *
 
 # Project Model Switch
-CAMERA_ADJUST = 1
-BOARD_DETECT  = 0
-PIECE_DETECT  = 0
-PIECE_PREDICT = 0
+CAMERA_ADJUST = 0
+BOARD_DETECT  = 1
+PIECE_DETECT  = 1
+PIECE_PREDICT = 1
 
 # Parameters Define
 piecetype_chinese = ["1-黑-車", "2-黑-卒", "3-黑-将", "4-黑-马", "5-黑-炮", "6-黑-士", "7-黑-象",
@@ -48,8 +48,8 @@ class VersionThread(QThread):
 
         # create the object
         board_object = board.Board()
-        piece_object = piece.Piece(modelfile_red="../piece_train_red/piece_finder_red.h5",
-                                   modelfile_black="../piece_train_black/piece_finder_black.h5",
+        piece_object = piece.Piece(modelfile_red="./cnn_model/piece_finder_red.h5",
+                                   modelfile_black="./cnn_model/piece_finder_black.h5",
                                    piecetype_black=piecetype_chinese_black,
                                    piecetype_red=piecetype_chinese_red)
 
@@ -58,7 +58,7 @@ class VersionThread(QThread):
             ret, frame = capture.read()
             frame = cv.flip(frame, 1)
             # take the middle square picture
-            src_image = frame[0:720, 280:1000]
+            src_image = frame[0:720, 230:1050]
 
             if (CAMERA_ADJUST):
                 cv.imshow("src_image", src_image)
@@ -79,8 +79,8 @@ class VersionThread(QThread):
         if (BOARD_DETECT):
             board_object.grid_tag(chess_grid_rows=9, chess_grid_cols=10)
 
-            # send the board detect finish signal
-            self.board_signal.emit()
+            # # send the board detect finish signal
+            # self.board_signal.emit()
 
             # after function for board you need place the piece on board and press the keyboard
             cv.waitKey(0)
@@ -94,25 +94,25 @@ class VersionThread(QThread):
             ret, frame = capture.read()
             frame = cv.flip(frame, 1)
             # take the middle square picture
-            src_image = frame[0:720, 280:1000]
+            src_image = frame[0:720, 230:1030]
 
             if (PIECE_DETECT):
                 if (BOARD_DETECT):
                     piece_object.piece_detect(src_image=src_image,
                                               min_x=board_object.min_x, max_x=board_object.max_x,
                                               min_y=board_object.min_y, max_y=board_object.max_y,
-                                              blue_ksize=3,
+                                              blur_ksize=3,
                                               hough_dp=1, hough_mindist=50, hough_param1=100, hough_param2=15,
                                               hough_minradius=25, hough_maxradius=26)
                 else:
                     piece_object.piece_detect(src_image=src_image,
                                               min_x=0, max_x=719, min_y=0, max_y=719,
-                                              blue_ksize=3,
+                                              blur_ksize=3,
                                               hough_dp=1, hough_mindist=50, hough_param1=100, hough_param2=15,
                                               hough_minradius=25, hough_maxradius=26)
 
                 if (PIECE_PREDICT):
-                    piece_object.piece_predict(piece_roi_size=50, distance_edge=289, thresh_color=90,
+                    piece_object.piece_predict(piece_roi_size=50, distance_edge=400, thresh_color=90,
                                                mid_square_size=10, red_black_thresh=50 * 255)
                     piece_object.piece_locate(angular_point_sorted=board_object.angular_point_rows, chess_grid_rows=9,
                                               chess_grid_cols=10)
@@ -125,8 +125,8 @@ class VersionThread(QThread):
             fps = 1000 / loop_time
             # print("fps :", format(fps, '.2f'))
 
-            # send piece detect finish signal
-            self.piece_signal.emit()
+            # # send piece detect finish signal
+            # self.piece_signal.emit()
 
         # cv.waitKey(0)
 

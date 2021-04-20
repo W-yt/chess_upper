@@ -23,10 +23,10 @@ class Piece(object):
         self.locate_list = []
         self.type_list = []
 
-    def piece_detect(self, src_image, min_x, max_x, min_y, max_y, blue_ksize,
+    def piece_detect(self, src_image, min_x, max_x, min_y, max_y, blur_ksize,
                      hough_dp, hough_mindist, hough_param1, hough_param2, hough_minradius, hough_maxradius):
         self.src_image = src_image
-        # cot off the chess board
+        # cut off the chess board
         self.piece_image = self.src_image[min_y:max_y, min_x:max_x]
         self.piece_image_draw = self.piece_image.copy()
         # cv.imshow("piece image", self.piece_image)
@@ -41,11 +41,11 @@ class Piece(object):
         # cv.imshow("piece_image_g", piece_image_g)
         thresh, piece_image_threshold = cv.threshold(piece_image_g, 128, 255, cv.THRESH_BINARY)
         # blue function's ksize is different with cornerHarris function
-        piece_image_blue = cv.blur(piece_image_threshold, (blue_ksize,blue_ksize))
-        cv.imshow("piece_image_blue", piece_image_blue)
+        piece_image_blur = cv.blur(piece_image_threshold, (blur_ksize,blur_ksize))
+        cv.imshow("piece_image_blur", piece_image_blur)
 
         # detect the circle of piece
-        self.circles = cv.HoughCircles(piece_image_blue, cv.HOUGH_GRADIENT,
+        self.circles = cv.HoughCircles(piece_image_blur, cv.HOUGH_GRADIENT,
                                   dp = hough_dp, minDist = hough_mindist,
                                   param1 = hough_param1, param2 = hough_param2,
                                   minRadius = hough_minradius, maxRadius = hough_maxradius)
@@ -79,7 +79,7 @@ class Piece(object):
                 # this need change to int, because /2 may change num to float
                 # notice this may be < 0
                 piece_predict = self.piece_image[int(center_y-piece_roi_size/2):int(center_y+piece_roi_size/2),
-                                              int(center_x-piece_roi_size/2):int(center_x+piece_roi_size/2)]
+                                                 int(center_x-piece_roi_size/2):int(center_x+piece_roi_size/2)]
                 # cv.imshow("piece_predict", piece_predict)
 
                 # take the mid circle of piece image
@@ -87,7 +87,7 @@ class Piece(object):
                     for pixel_y in range(piece_predict.shape[0]):
                         if (pow(pixel_x-piece_roi_size/2,2) + pow(pixel_y-piece_roi_size/2,2)) >= distance_edge:
                             piece_predict[pixel_y][pixel_x] = [0,0,0]
-                # cv.imshow("piece_predict_mid", piece_predict)
+                cv.imshow("piece_predict_mid", piece_predict)
 
                 # split the three channel of piece image
                 # choose the red channel for piece color detect

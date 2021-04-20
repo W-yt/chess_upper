@@ -62,7 +62,7 @@ class Board(object):
             self.min_y = min(point_y)
             self.max_y = max(point_y)
             self.board_image = self.src_image[self.min_y:self.max_y, self.min_x:self.max_x]
-            cv.imshow("board_image", self.board_image)
+            # cv.imshow("board_image", self.board_image)
 
             # # find the real board and then jump out the loop
             # if(self.max_contour_area > 250000 and self.max_contour_area < 330000):
@@ -119,6 +119,7 @@ class Board(object):
             # notice : list loop delete element has two method(below method or inverted order loop)
             point_index = 0
             while point_index < len(self.angular_point):
+                # row's(up and down) edge is 40; col's(left and right) edge is 20(this do not need to consider the cols size has increased)
                 if self.angular_point[point_index][1] < 40 or self.angular_point[point_index][1] > (self.board_image.shape[0]-40) or self.angular_point[point_index][0] < 20 or self.angular_point[point_index][0] > (self.board_image.shape[1]-20):
                     del self.angular_point[point_index]
                 else:

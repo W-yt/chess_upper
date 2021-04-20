@@ -93,7 +93,7 @@ def MAIN():
                 piece_object.piece_save(piece_roi_size=50, distance_edge=400, save_dir="temp_save_dir/")
 
             if (PIECE_PREDICT):
-                piece_object.piece_predict(piece_roi_size=50, distance_edge=289)
+                piece_object.piece_predict(piece_roi_size=50, distance_edge=400)
 
         keyboard = cv.waitKey(30)
 
